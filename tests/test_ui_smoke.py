@@ -81,7 +81,7 @@ def test_result_html_states():
     assert "close to the decision threshold" in result_html(_stub("inconclusive", 0.52)(b"", None))
     out = result_html({"status": "unavailable", "label": "inconclusive", "synthetic_score": None, "threshold": None,
                        "segments": [], "model_version": None, "message": "<b>m</b>"})
-    assert "Detector unavailable" in out and "—" in out and "&lt;b&gt;" in out and "meter" not in out
+    assert "Detector unavailable" in out and "—" in out and "&lt;b&gt;" in out and "gauge" not in out
 
 
 def test_model_source_reports_override(monkeypatch, tmp_path):
