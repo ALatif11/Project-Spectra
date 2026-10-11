@@ -1,6 +1,7 @@
 """Explicit, one-time source-group held-out test evaluation of a frozen model."""
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -31,12 +32,14 @@ def evaluate(root: Path, splits: Path, model_path: Path, run_dir: Path, cache: P
     marker = run_dir / "test_started.json"
     try:
         with marker.open("x") as stream:
-            json.dump(identity, stream)
+            json.dump(dict(identity, started_at=datetime.now(timezone.utc).isoformat()), stream)
     except FileExistsError as exc:
         raise ValueError("Final test evaluation already started; inspect run files before any manual recovery.") from exc
     scores = score_rows(artifact["pipeline"], root, test, cache)
     labels = np.array([int(row["label"]) for row in test])
     report = {**identity, "partition": "test", "seed": artifact["seed"],
+              "evaluated_at": datetime.now(timezone.utc).isoformat(),
+              "model_version": artifact["model_version"],
               "source": manifest()["repo_id"], "revision": manifest()["revision"],
               "metrics": metrics(labels, scores, artifact["threshold"]),
               "groups": sorted({row["group"] for row in test}), "limitations": LIMITATIONS,
