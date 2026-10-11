@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "rounds": 6,
+    "agents_per_round": 3,
+    "llm_calls": 60,
+    "experiments": 36,
+    "max_output_tokens": 2500,
+    "estimated_cost_usd": 5.0,
+    "run_timeout_s": 900.0,
+    "train_timeout_s": 120.0,
+    "request_timeout_s": 60.0,
+    "development_folds": 3,
+    "patience": 2,
+    "minimum_improvement": 0.002
+  },
+  "pricing": {
+    "input_per_million": 0.1425,
+    "cached_input_per_million": 0.0029,
+    "output_per_million": 0.5700,
+    "source": "https://dash.luminal.com/pricing",
+    "verified_on": "2026-10-11 (user-supplied Luminal rate card)",
+    "model_id": "deepseek-ai/DeepSeek-V4.1-Flash"
+  },
+  "provider_output_limit_verified": false
+}
