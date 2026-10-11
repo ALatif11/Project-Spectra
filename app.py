@@ -6,6 +6,8 @@ import streamlit as st
 
 from src.audio import AudioDecodeError, decode_audio
 from ui import theme, viz
+from ui.experiments import PATH, load as load_experiments
+from ui.lab import render_evolution, render_lab
 from ui.detector import result_html, run_detector
 
 st.set_page_config(page_title="EchoProof AI", page_icon="🎧", layout="wide")
@@ -75,14 +77,15 @@ with tab_detective:
                 st.plotly_chart(viz.segments_fig(res["segments"], res["threshold"]), use_container_width=True,
                                 config={"displayModeBar": False})
 
+@st.cache_data(show_spinner=False)
+def _load(mtime: float):
+    return load_experiments()
+
+
+experiments = _load(PATH.stat().st_mtime if PATH.is_file() else 0.0)
+
 with tab_lab:
-    with st.container(key="bezel_lab"):
-        theme.empty_state("No agent experiments yet",
-                          "Agent proposals, executed runs and measured metrics will appear here once the "
-                          "experiment loop has recorded real results.")
+    render_lab(experiments)
 
 with tab_evo:
-    with st.container(key="bezel_evo"):
-        theme.empty_state("No model history yet",
-                          "Validation metrics across experiments will be plotted here from recorded runs. "
-                          "Nothing is shown until real measurements exist.")
+    render_evolution(experiments)
