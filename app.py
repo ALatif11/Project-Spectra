@@ -6,7 +6,7 @@ import streamlit as st
 
 from src.audio import AudioDecodeError, decode_audio
 from ui import theme, viz
-from ui.detector import LABELS, run_detector
+from ui.detector import result_html, run_detector
 
 st.set_page_config(page_title="EchoProof AI", page_icon="🎧", layout="wide")
 theme.inject()
@@ -24,21 +24,7 @@ def analyze(digest: str, data: bytes, name: str):
 
 
 def result_card(res: dict) -> None:
-    ok = res["status"] == "ok"
-    title = LABELS.get(res["label"], "Inconclusive") if ok else {"invalid": "Invalid audio"}.get(res["status"], "Detector unavailable")
-    score, thr = res["synthetic_score"], res["threshold"]
-    fmt = lambda v: "—" if v is None else f"{v:.3f}"
-    st.markdown(
-        f'<div class="verdict {"" if ok else "off"}">{title}</div>'
-        f'<div class="note">{res["message"]}</div>'
-        f'<div class="stats"><div class="stat"><b>{fmt(score)}</b><span>Synthetic score</span></div>'
-        f'<div class="stat"><b>{fmt(thr)}</b><span>Decision threshold</span></div></div>'
-        '<div class="note">The score is a raw model output, not a calibrated probability, '
-        "and is not forensic proof. Unseen generators and recording conditions can shift results.</div>",
-        unsafe_allow_html=True,
-    )
-    if res["model_version"]:
-        st.markdown(f'<span class="pill">model {res["model_version"]}</span>', unsafe_allow_html=True)
+    st.markdown(result_html(res), unsafe_allow_html=True)
 
 
 tab_detective, tab_lab, tab_evo = st.tabs(["Audio Detective", "Agent Lab", "Model Evolution"])

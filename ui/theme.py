@@ -56,6 +56,9 @@ div[data-baseweb="tab-highlight"], div[data-baseweb="tab-border"] { display:none
 .pill { display:inline-block; padding:.25rem .7rem; border-radius:999px; font-size:11px; border:1px solid var(--hair); color:var(--mute); margin-right:.4rem; }
 .pill.warn { color:#fcd34d; border-color:rgba(252,211,77,.3); }
 
+.meter { position:relative; height:6px; border-radius:999px; background:rgba(255,255,255,.08); margin:.4rem 0 1rem; }
+.meter b { position:absolute; inset:0 auto 0 0; border-radius:999px; background:linear-gradient(90deg,var(--mint),var(--violet)); transition: width .8s var(--ease); }
+.meter i { position:absolute; top:-5px; bottom:-5px; width:2px; background:#fff; border-radius:2px; }
 /* Uploader */
 [data-testid="stFileUploaderDropzone"] { border:1px dashed rgba(255,255,255,.16); border-radius:1.4rem; background:rgba(255,255,255,.02);
   padding:1.8rem; transition: all .6s var(--ease); }
