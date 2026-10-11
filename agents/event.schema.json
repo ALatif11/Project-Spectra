@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EchoProof experiment replay event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "timestamp",
+    "event",
+    "mode",
+    "dry_run",
+    "round",
+    "role",
+    "seed",
+    "proposal",
+    "status",
+    "runtime_s",
+    "decision",
+    "reason",
+    "metrics",
+    "validation_diagnostics",
+    "best_balanced_accuracy",
+    "best_proposal",
+    "splits_sha256",
+    "baseline_sha256",
+    "llm_calls",
+    "model_experiments"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "event": {
+      "enum": [
+        "run_started",
+        "baseline",
+        "experiment",
+        "run_finished"
+      ]
+    },
+    "mode": {
+      "enum": [
+        "dry_run_static_proposals",
+        "cloud"
+      ]
+    },
+    "dry_run": {
+      "type": "boolean"
+    },
+    "round": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 3
+    },
+    "role": {
+      "enum": [
+        null,
+        "features",
+        "classifier",
+        "robustness"
+      ]
+    },
+    "seed": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "proposal": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "proposal.schema.json"
+        }
+      ]
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "failed",
+        "rejected",
+        "timeout",
+        "partial_failure",
+        "not_run"
+      ]
+    },
+    "runtime_s": {
+      "type": "number",
+      "minimum": 0
+    },
+    "decision": {
+      "enum": [
+        null,
+        "accepted",
+        "rejected"
+      ]
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "metrics": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "threshold",
+            "accuracy",
+            "balanced_accuracy",
+            "f1_synthetic",
+            "roc_auc",
+            "n_clips",
+            "confusion_matrix_real_fake"
+          ],
+          "properties": {
+            "threshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "balanced_accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "f1_synthetic": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "roc_auc": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "n_clips": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "confusion_matrix_real_fake": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "validation_diagnostics": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "n_clips",
+          "class_recall",
+          "label"
+        ],
+        "properties": {
+          "n_clips": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "class_recall": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "label": {
+            "enum": [
+              0,
+              1
+            ]
+          }
+        }
+      }
+    },
+    "best_balanced_accuracy": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "best_proposal": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "proposal.schema.json"
+        }
+      ]
+    },
+    "splits_sha256": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "baseline_sha256": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "llm_calls": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 20
+    },
+    "model_experiments": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 12
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rounds",
+        "agents_per_round",
+        "llm_calls",
+        "experiments",
+        "train_timeout_s",
+        "run_timeout_s"
+      ],
+      "properties": {
+        "rounds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "agents_per_round": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "llm_calls": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "experiments": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "train_timeout_s": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 3600
+        },
+        "run_timeout_s": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 3600
+        }
+      }
+    }
+  }
+}

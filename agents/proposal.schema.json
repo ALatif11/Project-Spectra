@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "role",
+    "feature_set",
+    "classifier",
+    "parameters"
+  ],
+  "properties": {
+    "role": {
+      "enum": [
+        "features",
+        "classifier",
+        "robustness"
+      ]
+    },
+    "feature_set": {
+      "enum": [
+        "all",
+        "mfcc",
+        "spectral",
+        "no_energy"
+      ]
+    },
+    "classifier": {
+      "enum": [
+        "logistic_regression",
+        "random_forest"
+      ]
+    },
+    "parameters": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "classifier": {
+            "const": "logistic_regression"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "C",
+              "class_weight"
+            ],
+            "properties": {
+              "C": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10
+              },
+              "class_weight": {
+                "enum": [
+                  null,
+                  "balanced"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "n_estimators",
+              "max_depth",
+              "min_samples_leaf",
+              "max_features",
+              "class_weight"
+            ],
+            "properties": {
+              "n_estimators": {
+                "type": "integer",
+                "enum": [
+                  50,
+                  100
+                ]
+              },
+              "max_depth": {
+                "type": "integer",
+                "enum": [
+                  3,
+                  6,
+                  10
+                ]
+              },
+              "min_samples_leaf": {
+                "type": "integer",
+                "enum": [
+                  1,
+                  3,
+                  5
+                ]
+              },
+              "max_features": {
+                "enum": [
+                  "sqrt",
+                  "log2"
+                ]
+              },
+              "class_weight": {
+                "enum": [
+                  null,
+                  "balanced"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "features"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "classifier": {
+            "const": "logistic_regression"
+          },
+          "parameters": {
+            "properties": {
+              "C": {
+                "const": 1
+              },
+              "class_weight": {
+                "const": null
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "classifier"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "feature_set": {
+            "const": "all"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "role": {
+            "const": "robustness"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "classifier": {
+            "const": "logistic_regression"
+          },
+          "feature_set": {
+            "const": "no_energy"
+          },
+          "parameters": {
+            "properties": {
+              "class_weight": {
+                "const": "balanced"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
