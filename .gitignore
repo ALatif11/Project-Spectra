@@ -6,6 +6,5 @@ src/.env.save
 .venv/
 __pycache__/
 data/
-runs/
 models/*.joblib
 models/*.pt

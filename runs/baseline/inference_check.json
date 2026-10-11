@@ -1,0 +1,47 @@
+[
+  {
+    "partition": "validation",
+    "path": "real/yt_0001_part_001.flac",
+    "ground_truth": 0,
+    "result": {
+      "status": "ok",
+      "label": "likely_human",
+      "synthetic_score": 0.1209113592658479,
+      "threshold": 0.33173498266474855,
+      "segments": [
+        {
+          "start_s": 0.0,
+          "end_s": 4.0,
+          "synthetic_score": 0.00011243441258557141
+        },
+        {
+          "start_s": 4.0,
+          "end_s": 5.0020625,
+          "synthetic_score": 0.603112518787384
+        }
+      ],
+      "model_version": "baseline-v1",
+      "message": "Research-grade estimate; not forensic proof. Uncalibrated score; recording artifacts and unseen generators may cause errors."
+    }
+  },
+  {
+    "partition": "validation",
+    "path": "fake/el_0001_c_part_002.flac",
+    "ground_truth": 1,
+    "result": {
+      "status": "ok",
+      "label": "likely_synthetic",
+      "synthetic_score": 0.9999362230300903,
+      "threshold": 0.33173498266474855,
+      "segments": [
+        {
+          "start_s": 0.0,
+          "end_s": 3.612,
+          "synthetic_score": 0.9999362230300903
+        }
+      ],
+      "model_version": "baseline-v1",
+      "message": "Research-grade estimate; not forensic proof. Uncalibrated score; recording artifacts and unseen generators may cause errors."
+    }
+  }
+]

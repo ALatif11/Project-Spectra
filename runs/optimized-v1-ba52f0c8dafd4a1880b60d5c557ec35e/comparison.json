@@ -1,0 +1,56 @@
+{
+  "baseline_sha256": "eb177b5824fddf3dc351c06f86de40b49d8385694ce36746031a6e4540298bc1",
+  "winner_sha256": "5f19ce37e01ecdace2ebad6193b6296b1314cb7c5dbb12abea2015174fb68ecf",
+  "splits_sha256": "01386211f92c06e24807c77345c108be0689a38292be75b7e2081ab2471da4da",
+  "baseline": {
+    "n_clips": 252,
+    "threshold": 0.33173498266474855,
+    "accuracy": 0.9642857142857143,
+    "balanced_accuracy": 0.96635016359787,
+    "f1_synthetic": 0.9596412556053812,
+    "roc_auc": 0.9955090780778855,
+    "confusion_matrix_real_fake": [
+      [
+        136,
+        7
+      ],
+      [
+        2,
+        107
+      ]
+    ]
+  },
+  "winner": {
+    "n_clips": 252,
+    "threshold": 0.39278538241090233,
+    "accuracy": 0.9642857142857143,
+    "balanced_accuracy": 0.9641688586642715,
+    "f1_synthetic": 0.958904109589041,
+    "roc_auc": 0.9937127093090395,
+    "confusion_matrix_real_fake": [
+      [
+        138,
+        5
+      ],
+      [
+        4,
+        105
+      ]
+    ]
+  },
+  "balanced_accuracy_gain": -0.0021813049335984713,
+  "f1_gain": -0.0007371460163401178,
+  "history_before_comparison": {
+    "baseline_sha256": "eb177b5824fddf3dc351c06f86de40b49d8385694ce36746031a6e4540298bc1",
+    "winner_sha256": "5f19ce37e01ecdace2ebad6193b6296b1314cb7c5dbb12abea2015174fb68ecf",
+    "splits_sha256": "01386211f92c06e24807c77345c108be0689a38292be75b7e2081ab2471da4da",
+    "recorded_at": "2026-10-11T20:38:23.139329+00:00",
+    "prior_evaluation_records": [],
+    "interpretation": "Repository records only; absence cannot rule out deleted or unlogged evaluations. Dataset preparation decodes all clips for integrity/grouping; that is not model evaluation. Both checkpoints and validation thresholds are frozen before this comparison. No test-based tuning."
+  },
+  "experiment_history_sha256": "4531fde279ca018d73f769bfbbd815169b5618bc3bdac77b9317d01f8418eb0a",
+  "thresholds": "Frozen from validation; not retuned on test. Metrics are threshold decisions before UI abstention.",
+  "confusion_matrix_order": "rows actual real/fake; columns predicted real/fake",
+  "robustness": "No distinct vendor holdout; source/domain bias remains possible.",
+  "deployment": "Opt in with ECHOPROOF_MODEL_PATH; baseline remains default and fallback."
+}
