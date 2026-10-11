@@ -79,3 +79,26 @@ def test_result_html_states():
     out = result_html({"status": "unavailable", "label": "inconclusive", "synthetic_score": None, "threshold": None,
                        "segments": [], "model_version": None, "message": "<b>m</b>"})
     assert "Detector unavailable" in out and "—" in out and "&lt;b&gt;" in out and "meter" not in out
+
+
+def test_model_source_reports_override(monkeypatch, tmp_path):
+    from ui.detector import model_html, model_source
+    monkeypatch.setenv("ECHOPROOF_MODEL_PATH", str(tmp_path / "missing.joblib"))
+    assert model_source() == ("missing.joblib", False, True) and "model file not found" in model_html()
+    monkeypatch.delenv("ECHOPROOF_MODEL_PATH")
+    shown, _, overridden = model_source()
+    assert shown == "models/baseline.joblib" and not overridden
+
+
+def test_silent_audio_is_invalid_when_baseline_exists(monkeypatch):
+    """Backend contract: with a model, silence is `invalid`; without one, everything is `unavailable`."""
+    import pytest
+    from src.model import MODEL_PATH
+    from ui.detector import run_detector
+    if not MODEL_PATH.is_file():
+        pytest.skip("models/baseline.joblib not present on this machine")
+    monkeypatch.delenv("ECHOPROOF_MODEL_PATH", raising=False)
+    buf = io.BytesIO()
+    sf.write(buf, np.zeros(16000, dtype=np.float32), 16000, format="WAV")
+    res = run_detector(buf.getvalue(), "silence.wav")
+    assert res["status"] == "invalid" and res["synthetic_score"] is None and res["segments"] == []

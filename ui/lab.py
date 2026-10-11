@@ -53,6 +53,45 @@ def card_html(e: dict) -> str:
     )
 
 
+def _pct(v: float) -> str:
+    return f"{v * 100:.4f}%"
+
+
+def _pts(v: float) -> str:
+    return f"{v * 100:+.4f} pts"
+
+
+def comparison_html(c: dict) -> str:
+    """Validation vs one-time final test, built only from the backend's saved reports."""
+    rows, gains = "", {}
+    for split, label in (("validation", "Validation"), ("test", "Final test (one-time)")):
+        b, o = c[split]["baseline"], c[split]["optimized"]
+        gains[split] = o["balanced_accuracy"] - b["balanced_accuracy"]
+        rows += (f'<tr><td>{label}<span class="sub">{b.get("n_clips", "—")} clips</span></td>'
+                 f'<td>{_pct(b["balanced_accuracy"])}</td><td>{_pct(o["balanced_accuracy"])}</td>'
+                 f'<td class="{"up" if gains[split] > 0 else "down"}">{_pts(gains[split])}</td></tr>')
+    who = f'round {_esc(c["winner"].get("round"))} {_esc(c["winner"].get("role"))} proposal'
+    if gains["validation"] > 0 and gains["test"] <= 0:
+        verdict = (f"The optimized configuration ({who}) improved validation balanced accuracy, "
+                   "but did not improve final test performance. The saved baseline stays the default detector.")
+    elif gains["validation"] > 0 and gains["test"] > 0:
+        verdict = f"The optimized configuration ({who}) improved both validation and final test balanced accuracy."
+    else:
+        verdict = f"The optimized configuration ({who}) did not improve validation balanced accuracy."
+    notes = "".join(f'<p class="note">{_esc(n)}</p>' for n in c["notes"])
+    return (f'<p class="verdict-sm">{verdict}</p>'
+            '<div class="tbl"><table class="cmp"><tr><th>Balanced accuracy</th><th>Baseline</th><th>Optimized</th>'
+            f'<th>Change</th></tr>{rows}</table></div>{notes}')
+
+
+def _comparison_card(run_id: str, key: str) -> None:
+    c = ex.comparison(run_id)
+    if c:
+        with st.container(key=f"bezel_cmp_{key}"):
+            theme.card_title("Validation vs final test")
+            st.markdown(comparison_html(c), unsafe_allow_html=True)
+
+
 def _empty(exp: ex.Experiments, what: str, key: str) -> bool:
     if exp.events:
         return False
@@ -64,8 +103,9 @@ def _empty(exp: ex.Experiments, what: str, key: str) -> bool:
 
 
 def _pick_run(exp: ex.Experiments, key: str) -> ex.Run:
-    ids = exp.run_ids
-    rid = ids[-1] if len(ids) == 1 else st.selectbox("Run", ids[::-1], key=f"run_{key}")
+    ids = exp.run_ids[::-1]  # newest first, but open on the run with saved final-test results if any
+    default = next((i for i, rid in enumerate(ids) if ex.comparison(rid)), 0)
+    rid = ids[0] if len(ids) == 1 else st.selectbox("Run", ids, index=default, key=f"run_{key}")
     r = ex.run(exp, rid)
     if r.dry_run:
         st.markdown('<span class="pill warn">Dry run: static proposals, not cloud agent output. '
@@ -93,6 +133,7 @@ def render_lab(exp: ex.Experiments) -> None:
             + (f'<p class="note">Selected configuration</p>{_proposal_kv(fin.get("best_proposal"))}' if fin and fin.get("best_proposal") else ""),
             unsafe_allow_html=True,
         )
+    _comparison_card(r.run_id, "lab")
     for rnd in r.rounds:
         evs = sorted((e for e in r.experiments if e.get("round") == rnd),
                      key=lambda e: ex.ROLES.index(e["role"]) if e.get("role") in ex.ROLES else 9)
@@ -146,6 +187,7 @@ def render_evolution(exp: ex.Experiments) -> None:
             best = next(p for p in pts if p.get("best"))
             st.markdown(f'<p class="note">Star: highest measured value, {best["value"]:.3f} ({_esc(best["label"])}). '
                         "Fixed validation partition only; this is not a final test result.</p>", unsafe_allow_html=True)
+    _comparison_card(r.run_id, "evo")
     with st.container(key="bezel_evo_out"):
         theme.card_title("Outcomes, including failures")
         counts = ex.outcome_counts(r.experiments)
