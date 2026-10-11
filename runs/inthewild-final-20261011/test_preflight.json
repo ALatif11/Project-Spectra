@@ -1,0 +1,68 @@
+{
+  "model_sha256": "e7263a3a4a1c789ffcd3765f1fb12ec2d41f0334057f57950c75a1c3d0a448bc",
+  "freeze_sha256": "6c5e283dc96b97f83c6c0b521fba47ae10e7b668062ea7904296cc4bf563dbdc",
+  "test_manifest_sha256": "38c2075ab91444839d294caf7f9ca963672821af3eb496af0273c7f68db6a368",
+  "test_distribution": {
+    "n": 1800,
+    "classes": {
+      "0": 900,
+      "1": 900
+    },
+    "speakers": 11,
+    "per_speaker": {
+      "Alexandria Ocasio-Cortez": {
+        "0": 152,
+        "1": 49
+      },
+      "Bob Ross": {
+        "1": 25,
+        "0": 30
+      },
+      "Christopher Hitchens": {
+        "0": 158,
+        "1": 199
+      },
+      "JFK": {
+        "0": 159,
+        "1": 125
+      },
+      "Jerry Seinfeld": {
+        "1": 28,
+        "0": 5
+      },
+      "Louis Farrakhan": {
+        "0": 153,
+        "1": 65
+      },
+      "Lyndon Johnson": {
+        "0": 53,
+        "1": 8
+      },
+      "Orson Welles": {
+        "1": 69,
+        "0": 13
+      },
+      "Scarlett Johansson": {
+        "1": 20,
+        "0": 11
+      },
+      "The Notorious B.I.G.": {
+        "1": 184,
+        "0": 8
+      },
+      "Winston Churchill": {
+        "1": 128,
+        "0": 158
+      }
+    }
+  },
+  "speakers_disjoint": true,
+  "exact_encoded_and_pcm_duplicates_absent": true,
+  "test_features_cached_before_evaluation": false,
+  "historical_evidence": [
+    "/Users/davidbonakdar/Documents/GitHub/Project-Spectra/data/inthewild/experiment-12000-v1/verification.json",
+    "/Users/davidbonakdar/Documents/GitHub/Project-Spectra/runs/inthewild-luminal-20261011-v1/summary.json",
+    "/Users/davidbonakdar/Documents/GitHub/Project-Spectra/runs/inthewild-research-preparation-20261011-v2/postrun-preservation.json"
+  ],
+  "caveat": "No historical digest of sealed/test.json was recorded. Existing logs and optimization-only caches support no prior test scoring; they are not an OS access audit. Preparation decoded all clips for PCM identity checks; shard extraction also read batches containing unselected audio, without extracting/scoring test features."
+}
