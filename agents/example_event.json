@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "run_id": "example-redacted",
+  "timestamp": null,
+  "event": "experiment",
+  "mode": "dry_run_static_proposals",
+  "dry_run": true,
+  "round": 1,
+  "role": "features",
+  "seed": null,
+  "proposal": {
+    "role": "features",
+    "feature_set": "mfcc",
+    "classifier": "logistic_regression",
+    "parameters": {
+      "C": 1.0,
+      "class_weight": null
+    }
+  },
+  "status": "not_run",
+  "runtime_s": 0.0,
+  "decision": null,
+  "reason": "Documentation fixture only; no experiment was run and no measurements are claimed.",
+  "metrics": null,
+  "validation_diagnostics": null,
+  "best_balanced_accuracy": null,
+  "best_proposal": null,
+  "splits_sha256": null,
+  "baseline_sha256": null,
+  "llm_calls": 0,
+  "model_experiments": 0,
+  "limits": {
+    "rounds": 3,
+    "agents_per_round": 3,
+    "llm_calls": 20,
+    "experiments": 12,
+    "train_timeout_s": 120.0,
+    "run_timeout_s": 600.0
+  }
+}
