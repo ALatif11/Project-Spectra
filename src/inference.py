@@ -25,6 +25,7 @@ def predict_audio(audio_bytes: bytes, filename: str | None = None) -> dict:
         return dict(result, status="invalid", message="Upload at least 0.25 seconds of audible speech; silence cannot be screened.")
     try:
         artifact = load_model(path)
+        result["model_version"] = artifact["model_version"]
         features, weights, windows = window_features(recording)
         scores = segment_scores(artifact["pipeline"], features)
         score = float(np.average(scores, weights=weights))
