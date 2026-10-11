@@ -37,8 +37,8 @@ class LuminalConfig:
             raise LuminalError("Use an HTTPS LUMINAL_BASE_URL without credentials or query parameters.")
         if type(self.timeout_s) not in (int, float) or not 0 < self.timeout_s <= 120 or not math.isfinite(self.timeout_s):
             raise LuminalError("LUMINAL_TIMEOUT_S must be finite, greater than zero, and at most 120 seconds.")
-        if type(self.max_output_tokens) is not int or not 1 <= self.max_output_tokens <= 1000:
-            raise LuminalError("MAX_OUTPUT_TOKENS must be an integer between 1 and 1000; the hard cap cannot be raised.")
+        if type(self.max_output_tokens) is not int or not 1 <= self.max_output_tokens <= 2500:
+            raise LuminalError("MAX_OUTPUT_TOKENS must be an integer between 1 and 2500; the hard cap cannot be raised.")
         if any("\n" in value or "\r" in value for value in (self.api_key, self.model_id)):
             raise LuminalError("Credentials and model ID must not contain newlines.")
 
@@ -47,9 +47,9 @@ class LuminalConfig:
         load_environment()
         try:
             timeout = float(os.environ.get("LUMINAL_TIMEOUT_S", "30"))
-            tokens = bounded_env_int("MAX_OUTPUT_TOKENS", 1000)
+            tokens = bounded_env_int("MAX_OUTPUT_TOKENS", 2500, 1000)
         except ValueError:
-            raise LuminalError("Use a numeric LUMINAL_TIMEOUT_S and MAX_OUTPUT_TOKENS between 1 and 1000.") from None
+            raise LuminalError("Use a numeric LUMINAL_TIMEOUT_S and MAX_OUTPUT_TOKENS between 1 and 2500.") from None
         return cls(os.environ.get("LUMINAL_API_KEY", ""),
                    os.environ.get("LUMINAL_BASE_URL", DEFAULT_BASE_URL),
                    os.environ.get("LUMINAL_MODEL_ID", DEFAULT_MODEL_ID), timeout, tokens)
@@ -86,6 +86,9 @@ class LuminalClient:
         reasoning = getattr(details, "reasoning_tokens", None)
         if type(reasoning) is int and 0 <= reasoning <= 10000000:
             values["reasoning_tokens"] = reasoning
+        cached = getattr(getattr(usage, "prompt_tokens_details", None), "cached_tokens", None)
+        if type(cached) is int and 0 <= cached <= values.get("prompt_tokens", 0):
+            values["cached_prompt_tokens"] = cached
         return json.dumps(values, sort_keys=True)
 
     def complete(self, messages: list[dict], *, max_output_tokens: int | None = None) -> str:
@@ -106,6 +109,7 @@ class LuminalClient:
                     model=self.config.model_id, messages=messages, max_tokens=tokens,
                 )
             diagnostics = self._response_diagnostics(result)
+            self.last_response_metadata = json.loads(diagnostics)
             if not result.choices:
                 raise LuminalError("Luminal returned no chat choices; no automatic retry was made. Diagnostics: " + diagnostics)
             content = result.choices[0].message.content
@@ -144,12 +148,44 @@ class LuminalClient:
 
         if role not in ROLE_INSTRUCTIONS:
             raise LuminalError("Unknown proposal role.")
+        schema = PROPOSAL_SCHEMA
+        instruction = ROLE_INSTRUCTIONS[role]
+        if summary.get("experiment_profile") == "inthewild_logistic_only":
+            import copy
+            schema = copy.deepcopy(PROPOSAL_SCHEMA)
+            schema["properties"]["classifier"]["enum"] = ["logistic_regression"]
+            if role == "classifier":
+                instruction = "Tune logistic regression C in [0.01,10] and class_weight null or balanced using all features."
+            instruction += " Prioritize validation balanced accuracy and genuine FPR versus synthetic FNR. Avoid configurations already tried."
         content = self.complete([
             {"role": "system", "content": "Propose one bounded experiment as plain JSON only. No code or shell commands. "
-             + ROLE_INSTRUCTIONS[role] + " JSON schema: " + json.dumps(PROPOSAL_SCHEMA)},
+             + instruction + " JSON schema: " + json.dumps(schema)},
             {"role": "user", "content": json.dumps(summary, allow_nan=False)},
         ])
         try:
             return validate_proposal(parse_json(content), role)
         except ProposalError:
             raise ProposalError("Provider proposal failed the experiment allowlist; raw response was discarded.") from None
+
+    def propose_recorded(self, role: str, summary: dict) -> dict:
+        """One request, retaining safe response usage metadata for live provenance."""
+        proposal = self.propose(role, summary)
+        return {"proposal": proposal, "provider_response": self.last_response_metadata}
+
+    def propose_research(self, role: str, summary: dict) -> dict:
+        """One hypothesis/configuration response, with usage retained even on failure."""
+        from agents.research_proposals import instructions, proposal_schema, validate_response
+        self.last_response_metadata = {}
+        try:
+            content = self.complete([
+                {"role": "system", "content": instructions(role) + " Plain JSON only: " + json.dumps(proposal_schema(role))},
+                {"role": "user", "content": json.dumps(summary, allow_nan=False, separators=(",", ":"))},
+            ])
+            value = validate_response(content, role)
+            return {"status": "ok", **value, "provider_response": self.last_response_metadata, "reason": None}
+        except LuminalError as exc:
+            return {"status": "failed", "proposal": None, "hypothesis": None,
+                    "provider_response": self.last_response_metadata, "reason": str(exc)}
+        except ValueError:
+            return {"status": "rejected", "proposal": None, "hypothesis": None,
+                    "provider_response": self.last_response_metadata, "reason": "proposal_outside_research_allowlist"}

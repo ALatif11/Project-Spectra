@@ -5,6 +5,102 @@ src/.env.save
 !.env.example
 .venv/
 __pycache__/
-data/
+
+# ==========================================
+# EchoProof AI — .gitignore
+# ==========================================
+
+# API Keys & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.streamlit/secrets.toml
+
+# Python Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+
+# Build Files
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Test Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# ==========================================
+# Audio Datasets & Training Data
+# ==========================================
+
+data/*
+!data/.gitkeep
+
+datasets/
+downloads/
+hf_cache/
+.cache/huggingface/
+
+# ==========================================
+# Trained Models & Checkpoints
+# ==========================================
+
 models/*.joblib
+models/*.pkl
+models/*.pickle
 models/*.pt
+models/*.pth
+models/*.ckpt
+models/*.onnx
+models/*.safetensors
+
+checkpoints/
+
+# ==========================================
+# Luminal Agent Experiments
+# ==========================================
+
+runs/*
+!runs/.gitkeep
+
+# Cached Features & Experiments
+cache/
+cached_features/
+*.npy
+*.npz
+
+# ==========================================
+# Logs & Temporary Files
+# ==========================================
+
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+
+# ==========================================
+# IDE & Operating System
+# ==========================================
+
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
