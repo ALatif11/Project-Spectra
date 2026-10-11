@@ -74,7 +74,7 @@ with tab_detective:
                 st.caption("Visual aid only. Bright regions are not evidence of manipulation.")
         if res["status"] == "ok" and res["segments"]:
             with st.container(key="bezel_segments"):
-                theme.card_title("Segment scores")
+                theme.card_title("Model score per 4 s segment")
                 st.plotly_chart(viz.segments_fig(res["segments"], res["threshold"]), use_container_width=True,
                                 config={"displayModeBar": False})
 

@@ -73,6 +73,7 @@ table.cmp th { text-align:left; font-size:10px; letter-spacing:.16em; text-trans
 table.cmp td { padding:.7rem .6rem; border-top:1px solid var(--hair); font-family:'Geist Mono',monospace; }
 table.cmp td:first-child { font-family:inherit; } table.cmp .sub { display:block; font-size:.75rem; color:var(--mute); }
 table.cmp .up { color:var(--mint); } table.cmp .down { color:#fca5a5; }
+.note.subtle { font-size:.8rem; opacity:.8; border-left:2px solid rgba(252,211,77,.35); padding-left:.6rem; }
 /* Uploader */
 [data-testid="stFileUploaderDropzone"] { border:1px dashed rgba(255,255,255,.16); border-radius:1.4rem; background:rgba(255,255,255,.02);
   padding:1.8rem; transition: all .6s var(--ease); }
