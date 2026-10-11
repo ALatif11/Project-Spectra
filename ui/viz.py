@@ -53,11 +53,11 @@ def segments_fig(segments: list[dict], threshold: float | None) -> go.Figure:
         x=[(s["start_s"] + s["end_s"]) / 2 for s in segments],
         width=[s["end_s"] - s["start_s"] - 0.1 for s in segments],
         y=[s["synthetic_score"] for s in segments], marker=dict(color=VIOLET),
-        hovertemplate="%{x:.1f}s · score %{y:.3f}<extra></extra>",
+        hovertemplate="%{x:.1f}s · model score %{y:.3f}<extra></extra>",
     ))
     if threshold is not None:
         fig.add_hline(y=threshold, line=dict(color=MINT, dash="dot", width=1),
                       annotation_text="threshold", annotation_font_color=MINT)
     fig.update_layout(**_BASE, height=170, showlegend=False,
-                      xaxis=dict(title="seconds", **_GRID), yaxis=dict(range=[0, 1], title="score", **_GRID))
+                      xaxis=dict(title="seconds", **_GRID), yaxis=dict(range=[0, 1], title="model score", **_GRID))
     return fig
