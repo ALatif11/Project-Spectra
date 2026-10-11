@@ -8,7 +8,7 @@ from src.audio import AudioDecodeError, decode_audio
 from ui import theme, viz
 from ui.experiments import PATH, load as load_experiments
 from ui.lab import render_evolution, render_lab
-from ui.detector import result_html, run_detector
+from ui.detector import model_html, result_html, run_detector
 
 st.set_page_config(page_title="EchoProof AI", page_icon="🎧", layout="wide")
 theme.inject()
@@ -48,6 +48,7 @@ with tab_detective:
     with right:
         with st.container(key="bezel_result"):
             theme.card_title("Detector")
+            st.markdown(model_html(), unsafe_allow_html=True)
             if not data:
                 st.markdown('<div class="verdict off">Awaiting audio</div><div class="note">'
                             "Upload a recording to decode it and run the local detector.</div>", unsafe_allow_html=True)

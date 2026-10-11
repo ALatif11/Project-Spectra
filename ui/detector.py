@@ -1,6 +1,8 @@
 """Thin adapter over the backend contract; never fabricates predictions."""
 
 import html
+import os
+from pathlib import Path
 
 REQUIRED = {"status", "label", "synthetic_score", "threshold", "segments", "model_version", "message"}
 LABELS = {
@@ -13,6 +15,21 @@ LABELS = {
 def _unavailable(message: str) -> dict:
     return {"status": "unavailable", "label": "inconclusive", "synthetic_score": None, "threshold": None,
             "segments": [], "model_version": None, "message": message}
+
+
+def model_source() -> tuple[str, bool, bool]:
+    """(display path, exists, overridden) for the checkpoint predict_audio will load; mirrors src/inference.py."""
+    try:
+        from src.model import MODEL_PATH
+    except ImportError:
+        return "unknown", False, False
+    override = os.environ.get("ECHOPROOF_MODEL_PATH")
+    path = Path(override or MODEL_PATH)
+    try:
+        shown = path.resolve().relative_to(Path(__file__).resolve().parents[1]).as_posix()
+    except ValueError:
+        shown = path.name
+    return shown, path.is_file(), bool(override)
 
 
 def run_detector(audio_bytes: bytes, filename: str | None) -> dict:
@@ -52,3 +69,12 @@ def result_html(res: dict) -> str:
         '<span class="pill warn">Not forensic proof</span>'
         + (f'<span class="pill">model {html.escape(str(res["model_version"]))}</span>' if res["model_version"] else "")
     )
+
+
+def model_html() -> str:
+    shown, exists, overridden = model_source()
+    kind = "selected via ECHOPROOF_MODEL_PATH" if overridden else "saved baseline (default)"
+    if exists:
+        return f'<span class="pill ok">{html.escape(kind)} · {html.escape(shown)}</span>'
+    return (f'<span class="pill warn">model file not found · {html.escape(shown)}</span>'
+            '<p class="note">Copy the trained checkpoint into place. Nothing is trained or predicted until it exists.</p>')

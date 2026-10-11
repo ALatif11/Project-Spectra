@@ -67,6 +67,12 @@ div[data-baseweb="tab-highlight"], div[data-baseweb="tab-border"] { display:none
 .kv { display:grid; grid-template-columns:auto 1fr; gap:.2rem .9rem; margin:.8rem 0; font-size:.85rem; }
 .kv dt { color:var(--mute); } .kv dd { margin:0; font-family:'Geist Mono',monospace; overflow-wrap:anywhere; }
 .note.err { color:#fca5a5; } .note.mono { font-family:'Geist Mono',monospace; font-size:.78rem; }
+.verdict-sm { font-size:1.05rem; font-weight:500; color:#f4f4f6; line-height:1.5; margin:0 0 1rem; max-width:48rem; }
+.tbl { overflow-x:auto; } table.cmp { width:100%; min-width:30rem; border-collapse:collapse; font-size:.9rem; }
+table.cmp th { text-align:left; font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--mute); font-weight:500; padding:.5rem .6rem; }
+table.cmp td { padding:.7rem .6rem; border-top:1px solid var(--hair); font-family:'Geist Mono',monospace; }
+table.cmp td:first-child { font-family:inherit; } table.cmp .sub { display:block; font-size:.75rem; color:var(--mute); }
+table.cmp .up { color:var(--mint); } table.cmp .down { color:#fca5a5; }
 /* Uploader */
 [data-testid="stFileUploaderDropzone"] { border:1px dashed rgba(255,255,255,.16); border-radius:1.4rem; background:rgba(255,255,255,.02);
   padding:1.8rem; transition: all .6s var(--ease); }
