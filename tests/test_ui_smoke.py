@@ -12,8 +12,9 @@ def test_app_renders_without_upload():
     assert [t.label for t in at.tabs] == ["Audio Detective", "Agent Lab", "Model Evolution"]
 
 
-def test_detector_unavailable_without_backend_inference():
+def test_detector_unavailable_without_backend_inference(monkeypatch, tmp_path):
     from ui.detector import run_detector
+    monkeypatch.setenv("ECHOPROOF_MODEL_PATH", str(tmp_path / "missing.joblib"))
     buf = io.BytesIO()
     sf.write(buf, np.zeros(16000, dtype=np.float32), 16000, format="WAV")
     res = run_detector(buf.getvalue(), "x.wav")
