@@ -71,3 +71,33 @@ def test_app_tabs_render_with_and_without_file(monkeypatch, tmp_path):
         monkeypatch.setattr(ex, "PATH", _write(tmp_path, lines) if lines else tmp_path / "missing.jsonl")
         at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=60).run()
         assert not at.exception
+
+
+LIVE = "ba52f0c8dafd4a1880b60d5c557ec35e"
+
+
+def test_live_luminal_run_in_committed_history():
+    r = ex.run(ex.load(ROOT / "runs" / "experiments.jsonl"), LIVE)
+    assert not r.dry_run and r.finished
+    assert {e["role"] for e in r.experiments} == {"features", "classifier", "robustness"}
+    assert ex.outcome_counts(r.experiments) == {"ok": 8, "failed": 1}
+
+
+def test_live_comparison_matches_saved_reports():
+    from ui.lab import comparison_html
+    c = ex.comparison(LIVE, ROOT / "runs")
+    out = comparison_html(c)
+    for shown in ("95.1095%", "95.6834%", "96.6350%", "96.4169%"):
+        assert shown in out
+    assert "did not improve final test performance" in out and "round 2 classifier" in out
+    assert ex.comparison("not-a-run", ROOT / "runs") is None
+
+
+def test_comparison_requires_matching_provenance(tmp_path):
+    import shutil
+    shutil.copytree(ROOT / "runs", tmp_path / "runs")
+    meta = tmp_path / "runs" / f"optimized-v1-{LIVE}" / "checkpoint_metadata.json"
+    data = json.loads(meta.read_text(encoding="utf-8"))
+    data["provenance"]["run_id"] = "other"
+    meta.write_text(json.dumps(data), encoding="utf-8")
+    assert ex.comparison(LIVE, tmp_path / "runs") is None

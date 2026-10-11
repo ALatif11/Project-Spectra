@@ -79,6 +79,36 @@ def load(path: Path = PATH) -> Experiments:
     return out
 
 
+def _json(path: Path) -> dict | None:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def comparison(run_id: str, runs_dir: Path | None = None) -> dict | None:
+    """Saved validation and one-time final test metrics for a promoted run, or None.
+
+    Reads the backend's own reports (runs/baseline/*, runs/optimized-v1-<run_id>/*);
+    returns None unless every file exists and the checkpoint's provenance matches.
+    """
+    runs_dir = runs_dir or PATH.parent
+    d = runs_dir / f"optimized-v1-{run_id}"
+    meta, comp = _json(d / "checkpoint_metadata.json"), _json(d / "comparison.json")
+    val_base, val_win = _json(runs_dir / "baseline" / "validation_metrics.json"), _json(d / "validation_metrics.json")
+    if not (meta and comp and val_base and val_win) or (meta.get("provenance") or {}).get("run_id") != run_id:
+        return None
+    try:
+        return {
+            "validation": {"baseline": val_base["metrics"], "optimized": val_win["metrics"]},
+            "test": {"baseline": comp["baseline"], "optimized": comp["winner"]},
+            "winner": {k: meta["provenance"].get(k) for k in ("round", "role")},
+            "notes": [comp[k] for k in ("thresholds", "robustness", "deployment") if comp.get(k)],
+        }
+    except (KeyError, TypeError):
+        return None
+
+
 def run(exp: Experiments, run_id: str) -> Run:
     return Run(run_id, [e for e in exp.events if e["run_id"] == run_id])
 
