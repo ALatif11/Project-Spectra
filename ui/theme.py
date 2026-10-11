@@ -59,6 +59,14 @@ div[data-baseweb="tab-highlight"], div[data-baseweb="tab-border"] { display:none
 .meter { position:relative; height:6px; border-radius:999px; background:rgba(255,255,255,.08); margin:.4rem 0 1rem; }
 .meter b { position:absolute; inset:0 auto 0 0; border-radius:999px; background:linear-gradient(90deg,var(--mint),var(--violet)); transition: width .8s var(--ease); }
 .meter i { position:absolute; top:-5px; bottom:-5px; width:2px; background:#fff; border-radius:2px; }
+.agrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:.8rem; }
+.acard { padding:1.1rem; border:1px solid var(--hair); border-radius:1.4rem; background:rgba(255,255,255,.025); min-width:0; }
+.acard .pill { margin-bottom:.3rem; }
+.pill.ok { color:var(--mint); border-color:rgba(94,234,212,.3); }
+.pill.bad { color:#fca5a5; border-color:rgba(252,165,165,.3); }
+.kv { display:grid; grid-template-columns:auto 1fr; gap:.2rem .9rem; margin:.8rem 0; font-size:.85rem; }
+.kv dt { color:var(--mute); } .kv dd { margin:0; font-family:'Geist Mono',monospace; overflow-wrap:anywhere; }
+.note.err { color:#fca5a5; } .note.mono { font-family:'Geist Mono',monospace; font-size:.78rem; }
 /* Uploader */
 [data-testid="stFileUploaderDropzone"] { border:1px dashed rgba(255,255,255,.16); border-radius:1.4rem; background:rgba(255,255,255,.02);
   padding:1.8rem; transition: all .6s var(--ease); }
