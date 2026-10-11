@@ -91,6 +91,14 @@ def load_model(path: Path = MODEL_PATH) -> dict:
                 or classifier.solver != "lbfgs" or classifier.max_iter != 1000
                 or not artifact.get("provenance", {}).get("run_id")):
             raise ValueError("Invalid optimized model metadata.")
+    elif artifact.get("model_version") == "inthewild-v1":
+        from src.inthewild import LABELS, REPO, REVISION
+        if (artifact.get("label_mapping") != LABELS
+                or artifact.get("provenance", {}).get("repo") != REPO
+                or artifact.get("provenance", {}).get("revision") != REVISION
+                or not artifact.get("splits_sha256")
+                or set(artifact.get("train_groups", [])) & set(artifact.get("validation_groups", []))):
+            raise ValueError("Invalid InTheWild model provenance/groups.")
     elif artifact.get("model_version") != "baseline-v1":
         raise ValueError("Unsupported model version.")
     return artifact

@@ -104,7 +104,7 @@ def test_configuration_validates_provider_and_hides_key(config):
     assert "private-test-key" not in repr(config)
     for changes in ({"base_url": "http://configured.test"}, {"base_url": "https://user:secret@configured.test"},
                     {"base_url": "https://configured.test?key=secret"}, {"model_id": "model\nname"},
-                    {"timeout_s": float("inf")}, {"max_output_tokens": 1001}, {"max_output_tokens": True}):
+                    {"timeout_s": float("inf")}, {"max_output_tokens": 2501}, {"max_output_tokens": True}):
         with pytest.raises(LuminalError):
             replace(config, **changes)
 
@@ -125,8 +125,8 @@ def test_root_env_loaded_from_another_directory_and_host_key_preserved(tmp_path,
     assert LuminalConfig.from_env().api_key == "host-test-key"
 
 
-@pytest.mark.parametrize("name,value", [("MAX_AGENT_ROUNDS", "4"), ("MAX_LLM_CALLS", "21"),
-    ("MAX_MODEL_EXPERIMENTS", "13"), ("MAX_OUTPUT_TOKENS", "1001"), ("MAX_OUTPUT_TOKENS", "secret")])
+@pytest.mark.parametrize("name,value", [("MAX_AGENT_ROUNDS", "7"), ("MAX_LLM_CALLS", "61"),
+    ("MAX_MODEL_EXPERIMENTS", "37"), ("MAX_OUTPUT_TOKENS", "2501"), ("MAX_OUTPUT_TOKENS", "secret")])
 def test_environment_cannot_raise_hard_caps(name, value, monkeypatch):
     monkeypatch.setenv(name, value)
     monkeypatch.setenv("LUMINAL_API_KEY", "test-key")
@@ -136,7 +136,7 @@ def test_environment_cannot_raise_hard_caps(name, value, monkeypatch):
 
 
 @pytest.mark.parametrize("role", ["features", "classifier", "robustness"])
-@pytest.mark.parametrize("tokens", [1000, 80])
+@pytest.mark.parametrize("tokens", [2500, 1000, 80])
 def test_sdk_uses_configured_url_model_and_token_cap_for_each_role(config, monkeypatch, role, tokens):
     requests = []
 
@@ -303,8 +303,8 @@ def test_changed_split_hash_refuses_candidate_before_fit(fitted):
         runner.fit_candidate(root, splits, model_path, cache, "different", file_digest(model_path), static_proposal("features", 1))
 
 
-@pytest.mark.parametrize("changes", [{"rounds": 4}, {"agents_per_round": 4}, {"llm_calls": 21}, {"experiments": 13},
-                                     {"rounds": True}, {"run_timeout_s": float("nan")}, {"train_timeout_s": 0}])
+@pytest.mark.parametrize("changes", [{"rounds": 7}, {"agents_per_round": 4}, {"llm_calls": 61}, {"experiments": 37},
+                                     {"rounds": True}, {"run_timeout_s": 901}, {"run_timeout_s": float("nan")}, {"train_timeout_s": 0}, {"train_timeout_s": 121}])
 def test_hard_caps_cannot_be_raised(changes):
     with pytest.raises(ValueError):
         replace(runner.Limits(), **changes)
