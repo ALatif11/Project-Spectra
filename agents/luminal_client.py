@@ -59,6 +59,35 @@ class LuminalClient:
     def __init__(self, config: LuminalConfig):
         self.config = config  # Keep this object picklable for the bounded process runner.
 
+    @staticmethod
+    def _response_diagnostics(result) -> str:
+        """Only bounded numeric facts/enums; never content, IDs or provider text.
+
+        Included in safe error reasons, so the existing event log records them
+        without a dashboard schema change or an extra provider request.
+        """
+        choices = getattr(result, "choices", None)
+        choice = choices[0] if isinstance(choices, list) and choices else None
+        message = getattr(choice, "message", None)
+        content = getattr(message, "content", None)
+        finish = getattr(choice, "finish_reason", None)
+        usage = getattr(result, "usage", None)
+        values = {"choice_count": min(len(choices), 1000) if isinstance(choices, list) else 0,
+                  "content_kind": "text" if isinstance(content, str) else "null" if content is None else "other",
+                  "content_bytes": min(len(content.encode("utf-8")), 1000000) if isinstance(content, str) else 0,
+                  "finish_reason": finish if finish in ("stop", "length", "tool_calls", "content_filter", "function_call") else "unknown",
+                  "refusal_present": bool(getattr(message, "refusal", None)),
+                  "tool_calls_present": bool(getattr(message, "tool_calls", None))}
+        for name in ("prompt_tokens", "completion_tokens", "total_tokens"):
+            value = getattr(usage, name, None)
+            if type(value) is int and 0 <= value <= 10000000:
+                values[name] = value
+        details = getattr(usage, "completion_tokens_details", None)
+        reasoning = getattr(details, "reasoning_tokens", None)
+        if type(reasoning) is int and 0 <= reasoning <= 10000000:
+            values["reasoning_tokens"] = reasoning
+        return json.dumps(values, sort_keys=True)
+
     def complete(self, messages: list[dict], *, max_output_tokens: int | None = None) -> str:
         """Make exactly one chat request; callers must supply no audio or secrets."""
         from openai import APIConnectionError, APIError, APIStatusError, APITimeoutError, OpenAI
@@ -76,9 +105,20 @@ class LuminalClient:
                 result = client.chat.completions.create(
                     model=self.config.model_id, messages=messages, max_tokens=tokens,
                 )
+            diagnostics = self._response_diagnostics(result)
+            if not result.choices:
+                raise LuminalError("Luminal returned no chat choices; no automatic retry was made. Diagnostics: " + diagnostics)
             content = result.choices[0].message.content
-            if not isinstance(content, str) or not content.strip() or len(content.encode("utf-8")) > 65536:
-                raise LuminalError("Luminal returned empty or oversized chat content; no automatic retry was made.")
+            if not isinstance(content, str):
+                reason = "missing text content"
+            elif not content.strip():
+                reason = "empty text content"
+            elif len(content.encode("utf-8")) > 65536:
+                reason = "oversized text content"
+            else:
+                reason = None
+            if reason:
+                raise LuminalError(f"Luminal returned {reason}; no automatic retry was made. Diagnostics: " + diagnostics)
             return content
         except APIStatusError as exc:
             hint = {

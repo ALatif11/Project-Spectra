@@ -94,6 +94,12 @@ def baseline_check(root, splits, model_path, cache, splits_hash, model_hash):
 
 
 def fit_candidate(root, splits, model_path, cache, splits_hash, model_hash, proposal):
+    _, report = fit_candidate_model(root, splits, model_path, cache, splits_hash, model_hash, proposal)
+    return report
+
+
+def fit_candidate_model(root, splits, model_path, cache, splits_hash, model_hash, proposal):
+    """Same deterministic experiment fit, retaining the fitted pipeline for export."""
     proposal = validate_proposal(proposal, proposal["role"])
     rows, artifact = fixed_context(root, splits, model_path, splits_hash, model_hash)
     seed = artifact["seed"]
@@ -133,8 +139,8 @@ def fit_candidate(root, splits, model_path, cache, splits_hash, model_hash, prop
             "class_recall": float(np.mean(predicted == validation_labels[mask])),
             "label": int(validation_labels[mask][0])}
     fixed_context(root, splits, model_path, splits_hash, model_hash)
-    return {"metrics": measured, "validation_diagnostics": diagnostics, "seed": seed,
-            "feature_count": len(columns), "n_train": sum(row["split"] == "train" for row in rows)}
+    return pipeline, {"metrics": measured, "validation_diagnostics": diagnostics, "seed": seed,
+                      "feature_count": len(columns), "n_train": sum(row["split"] == "train" for row in rows)}
 
 
 def _child_entry(connection, action, args):

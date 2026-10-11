@@ -80,7 +80,18 @@ def load_model(path: Path = MODEL_PATH) -> dict:
     threshold = artifact.get("threshold")
     if not isinstance(threshold, (float, int)) or not np.isfinite(threshold) or not 0 <= threshold <= 1:
         raise ValueError("Invalid decision threshold.")
-    if artifact.get("model_version") != "baseline-v1":
+    if artifact.get("model_version") == "optimized-v1":
+        config = artifact.get("training_configuration", {})
+        classifier = pipeline.named_steps["classifier"]
+        if (artifact.get("label_mapping") != {"real": 0, "fake": 1}
+                or config.get("feature_set") != "all"
+                or config.get("classifier") != "logistic_regression"
+                or config.get("parameters") != {"C": classifier.C, "class_weight": classifier.class_weight}
+                or classifier.random_state != artifact.get("seed")
+                or classifier.solver != "lbfgs" or classifier.max_iter != 1000
+                or not artifact.get("provenance", {}).get("run_id")):
+            raise ValueError("Invalid optimized model metadata.")
+    elif artifact.get("model_version") != "baseline-v1":
         raise ValueError("Unsupported model version.")
     return artifact
 

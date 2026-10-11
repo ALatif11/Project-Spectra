@@ -198,6 +198,26 @@ def test_connection_failure_and_timeout_do_not_retry_or_leak(config, monkeypatch
     assert len(requests) == 1 and "private" not in str(error.value)
 
 
+@pytest.mark.parametrize("content,expected", [(None, "missing text"), ("  ", "empty text"), ("x" * 65537, "oversized text")])
+def test_failure_diagnostics_keep_only_safe_metadata(config, monkeypatch, content, expected):
+    requests = []
+
+    def response(request):
+        requests.append(request)
+        return httpx.Response(200, json={"id": "private-test-key", "choices": [{"finish_reason": "length",
+            "message": {"content": content, "refusal": "private-test-key", "reasoning_content": "private-test-key"}}],
+            "usage": {"prompt_tokens": 100, "completion_tokens": 1000, "total_tokens": 1100,
+                      "completion_tokens_details": {"reasoning_tokens": 1000}}})
+
+    mock_sdk(monkeypatch, response)
+    with pytest.raises(LuminalError, match=expected) as caught:
+        LuminalClient(config).complete([{"role": "user", "content": "fixture"}])
+    assert len(requests) == 1 and "private-test-key" not in str(caught.value)
+    diagnostics = json.loads(str(caught.value).split("Diagnostics: ")[1])
+    assert diagnostics["finish_reason"] == "length" and diagnostics["completion_tokens"] == 1000
+    assert diagnostics["reasoning_tokens"] == 1000 and diagnostics["refusal_present"]
+
+
 @pytest.mark.parametrize("code", [200, 400, 429, 500])
 def test_connectivity_script_makes_exactly_one_small_request(config, monkeypatch, capsys, code):
     from scripts import test_luminal
