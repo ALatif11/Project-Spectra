@@ -13,9 +13,9 @@ def load_environment() -> None:
     load_dotenv(REPOSITORY_ROOT / ".env", override=False)
 
 
-def bounded_env_int(name: str, maximum: int) -> int:
+def bounded_env_int(name: str, maximum: int, default: int | None = None) -> int:
     try:
-        value = int(os.environ.get(name, str(maximum)))
+        value = int(os.environ.get(name, str(maximum if default is None else default)))
     except ValueError:
         raise ValueError(f"{name} must be an integer between 1 and {maximum}.") from None
     if not 1 <= value <= maximum:

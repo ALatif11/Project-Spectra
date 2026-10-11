@@ -1,0 +1,5 @@
+# Optional offline experiment only; core app/backend requirements are unchanged.
+pyarrow==25.0.1
+requests>=2.32,<3
+# Already supplied by scikit-learn; caps local numeric-library threads.
+threadpoolctl>=3,<4

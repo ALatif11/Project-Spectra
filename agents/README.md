@@ -34,7 +34,8 @@ precedence. `.env.example` lists `LUMINAL_API_KEY`, `LUMINAL_BASE_URL`, and
 `.env`. No shell sourcing or exports are needed. The former completion path,
 API format, and token field settings are removed.
 
-Chat requests use `max_tokens`, with `MAX_OUTPUT_TOKENS=1000` as a hard ceiling.
+Chat requests use `max_tokens`. The legacy default is 1,000 tokens; the client
+now supports a hard ceiling of 2,500 for the expanded research profile below.
 If Luminal rejects the field, the request fails safely; there is no automatic
 retry or parameter fallback. SDK retries are disabled with `max_retries=0`.
 Redirects are refused. `LUMINAL_TIMEOUT_S` defaults to 30 seconds (maximum 120).
@@ -88,8 +89,9 @@ one-time final evaluation; this extension does not evaluate final test itself.
 
 ## Hard budgets and replay
 
-Hard upper bounds are 3 rounds, 3 roles per round, 20 total cloud-call attempts,
-12 model-fit attempts, and at most 1000 requested output tokens per call.
+The legacy profile preserves 3 rounds, 3 roles per round, 20 total cloud-call
+attempts and 12 model-fit attempts. Larger budgets use the research profile
+below, preserving the original frontend event schema and legacy behavior.
 Failures/timeouts consume their attempt budgets. With one proposal per role per
 round the current loop makes at most 9 calls/fits, inside those hard bounds.
 Root `.env` values `MAX_AGENT_ROUNDS`, `MAX_LLM_CALLS`, and
@@ -121,3 +123,65 @@ does not expose any user recordings. A missing event file should show an empty
 state. Frontend code remains owned by the frontend teammate.
 
 Tests: `python -m pytest -q tests/test_dataset.py tests/test_model.py tests/test_agents.py`.
+
+## Approved InTheWild optimization profile
+
+`scripts/optimize_inthewild.py` adapts this same three-role orchestrator to
+`data/inthewild/experiment-12000-v1/optimization.json`, its existing `features/`
+cache, and `models/inthewild-v1-12000.joblib`. It never opens audio shards,
+`sealed/test.json`, or microphone diagnostics. A missing cache fails without
+extraction. The offline check makes zero cloud requests and zero model fits:
+
+```sh
+.venv/bin/python -m scripts.optimize_inthewild --run-dir runs/NEW-UNIQUE-RUN
+```
+
+Only with explicit live-run approval, continue the same checked run once:
+
+```sh
+.venv/bin/python -m scripts.optimize_inthewild --live --run-dir runs/NEW-UNIQUE-RUN
+```
+
+An exclusive `live_started.json` marker prevents automatic reruns. This profile
+requires the verified DeepSeek V4.1 Flash endpoint/model, at most two rounds,
+six fit attempts, twelve API attempts, 120 seconds per local operation and 600
+seconds overall. Lower configured environment budgets still apply. The actual
+three-role/two-round loop can make at most six API attempts; it does not spend
+the remaining allowance on retries. Logistic regression alone is permitted,
+with existing feature subsets, bounded C and null/balanced class weighting.
+Class weighting follows scikit-learn's window-label semantics; duration weights
+still give each clip unit total weight. Thresholds optimize validation balanced
+accuracy using the existing tie rule. Unequal speaker contribution and repeated
+validation selection remain limitations.
+
+All train/validation caches are hashed before fitting and verified afterward.
+Older checkpoints, history, partitions and frontend files are checked for
+preservation. Prompts include reproduced current validation metrics and earlier
+allowlisted experiments; Gary Stafford results are explicitly labeled as a
+different dataset. Only aggregate metrics/configurations leave the computer.
+
+New history is separate from `runs/experiments.jsonl`. InTheWild events add
+`experiment_profile`, `provider`, `provider_response`, `saved_artifact`,
+`best_artifact`, `test_accessed` and `diagnostic_used`; `call_started` and
+`proposal` events retain each attempt and accepted-schema response before fits.
+Provider metadata includes endpoint/model, token cap, zero-retry policy and
+safe numeric response usage. Failed responses retain redacted reasons.
+These optional fields do not change older events or the frontend schema.
+
+Each completed experiment exclusively saves the actual fitted pipeline,
+selected column indices, threshold, validation metrics, seed and live provenance
+under the new run's `artifacts/`. These are research checkpoints, intentionally
+not enabled in `src/model.py` or selected by the app. Feature subsets would need
+reviewed inference support before deployment. The winner is never refitted,
+promoted or tested during this phase. Replay its validation by reading the same
+manifest/caches, selecting the saved `feature_indices`, duration-averaging
+`pipeline.predict_proba(... )[:,1]`, then applying its saved threshold.
+
+## Expanded research profile (configuration does not execute cloud calls)
+
+See [research.md](research.md) for the six-round profile, actual-fit and dollar
+accounting, training-only development folds, hypotheses, plateau stopping and
+unchanged-schema frontend projections. Prepare with `--research`; benchmarking
+requires separate approval via `--benchmark`, and paid execution requires a later
+explicit approval via `--research --live`. The older two-round profile and all
+older results remain available.

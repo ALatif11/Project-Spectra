@@ -35,19 +35,20 @@ class Limits:
     @classmethod
     def from_env(cls):
         load_environment()
-        return cls(rounds=bounded_env_int("MAX_AGENT_ROUNDS", 3),
-                   llm_calls=bounded_env_int("MAX_LLM_CALLS", 20),
-                   experiments=bounded_env_int("MAX_MODEL_EXPERIMENTS", 12))
+        return cls(rounds=bounded_env_int("MAX_AGENT_ROUNDS", 6, 3),
+                   llm_calls=bounded_env_int("MAX_LLM_CALLS", 60, 20),
+                   experiments=bounded_env_int("MAX_MODEL_EXPERIMENTS", 36, 12))
 
     def __post_init__(self):
-        for name, maximum in (("rounds", 3), ("agents_per_round", 3), ("llm_calls", 20), ("experiments", 12)):
+        for name, maximum in (("rounds", 6), ("agents_per_round", 3), ("llm_calls", 60), ("experiments", 36)):
             value = getattr(self, name)
             if type(value) is not int or not 1 <= value <= maximum:
                 raise ValueError(f"{name} must be an integer between 1 and {maximum}; hard caps cannot be raised.")
         for name in ("train_timeout_s", "run_timeout_s"):
             value = getattr(self, name)
-            if type(value) not in (int, float) or not 0 < value <= 3600 or not math.isfinite(value):
-                raise ValueError(f"{name} must be finite, positive, and at most 3600 seconds.")
+            maximum = 900 if name == "run_timeout_s" else 120
+            if type(value) not in (int, float) or not 0 < value <= maximum or not math.isfinite(value):
+                raise ValueError(f"{name} must be finite, positive, and at most {maximum} seconds.")
 
 
 def fixed_context(root: Path, splits: Path, model_path: Path, splits_hash: str, model_hash: str):
