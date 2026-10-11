@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from ui import experiments as ex, theme
-from ui.theme import term, tip
+from ui.theme import TOKENS, term, tip
 from ui.viz import _BASE, _GRID, INK, MUTE, SIGNAL
 
 ROLE_TITLES = {"features": "Feature agent", "classifier": "Classifier agent", "robustness": "Robustness agent"}
@@ -215,13 +215,13 @@ def render_lab(exp: ex.Experiments) -> None:
 def evolution_fig(pts: list[dict], name: str, baseline: float | None = None) -> go.Figure:
     label = METRIC_NAMES.get(name, name)
     fig = go.Figure(go.Scatter(x=[p["i"] + 1 for p in pts], y=[p["value"] for p in pts], mode="lines+markers",
-                               line=dict(color=SIGNAL, width=2, shape="spline", smoothing=0.6),
-                               marker=dict(color="#15161B", size=10, line=dict(color=SIGNAL, width=2)),
+                               line=dict(color=SIGNAL, width=2),
+                               marker=dict(color=TOKENS["surface"], size=10, line=dict(color=SIGNAL, width=2)),
                                text=[p["label"] for p in pts],
                                hovertemplate="%{text}<br>" + label + " %{y:.3f}<extra></extra>"))
     best = [p for p in pts if p.get("best")]
     fig.add_trace(go.Scatter(x=[p["i"] + 1 for p in best], y=[p["value"] for p in best], mode="markers",
-                             marker=dict(color=SIGNAL, size=18, symbol="star", line=dict(color="#15161B", width=1.5)),
+                             marker=dict(color=SIGNAL, size=18, symbol="star", line=dict(color=TOKENS["surface"], width=1.5)),
                              hoverinfo="skip"))
     if baseline is not None:
         fig.add_hline(y=baseline, line=dict(color=MUTE, dash="dot", width=1),

@@ -9,7 +9,7 @@ from streamlit.testing.v1 import AppTest
 def test_app_renders_without_upload():
     at = AppTest.from_file(str(Path(__file__).parents[1] / "app.py"), default_timeout=30).run()
     assert not at.exception
-    assert [t.label for t in at.tabs] == ["Audio Detective", "Agent Lab", "Model Evolution"]
+    assert [t.label for t in at.tabs] == ["Check a clip", "How it works", "Model", "Agent experiments", "Results over time"]
 
 
 def test_detector_unavailable_without_backend_inference(monkeypatch, tmp_path):
@@ -72,8 +72,8 @@ def _stub(label, score):
 def test_result_html_states():
     """Stub lives only in tests: checks rendering paths, not model behavior."""
     from ui.detector import result_html
-    for label, text in [("likely_human", "Model output: likely human"), ("likely_synthetic", "Model output: likely synthetic"),
-                        ("inconclusive", "Model output: inconclusive")]:
+    for label, text in [("likely_human", "closer to a real human voice"), ("likely_synthetic", "closer to AI-generated speech"),
+                        ("inconclusive", "We can't tell")]:
         out = result_html(_stub(label, 0.52)(b"", None))
         assert text in out and "0.520" in out and "Model score (synthetic)" in out and "Not forensic proof" in out
         assert "not a confidence level or a verified probability" in out and "Experimental" in out
@@ -81,7 +81,7 @@ def test_result_html_states():
     assert "close to the decision threshold" in result_html(_stub("inconclusive", 0.52)(b"", None))
     out = result_html({"status": "unavailable", "label": "inconclusive", "synthetic_score": None, "threshold": None,
                        "segments": [], "model_version": None, "message": "<b>m</b>"})
-    assert "Detector unavailable" in out and "—" in out and "&lt;b&gt;" in out and "gauge" not in out
+    assert "Checking isn't available" in out and "&lt;b&gt;" in out and "meter" not in out and "Why" not in out
 
 
 def test_model_source_reports_override(monkeypatch, tmp_path):
@@ -105,3 +105,36 @@ def test_silent_audio_is_invalid_when_baseline_exists(monkeypatch):
     sf.write(buf, np.zeros(16000, dtype=np.float32), 16000, format="WAV")
     res = run_detector(buf.getvalue(), "silence.wav")
     assert res["status"] == "invalid" and res["synthetic_score"] is None and res["segments"] == []
+
+
+def test_why_and_warnings_render_without_inventing():
+    from ui.detector import result_html
+    why = [{"feature": "rms_std", "label": "how much the loudness changes", "toward": "ai", "strength": 1.0, "level": 2.1}]
+    out = result_html(_stub("likely_synthetic", 0.9)(b"", None), why, ["Short clip."])
+    assert "How much the loudness changes" in out and "much higher than typical" in out and "→ AI-like" in out
+    assert "Short clip." in out
+    assert "doesn't expose" in result_html(_stub("likely_human", 0.1)(b"", None), None)
+
+
+def test_explain_helpers():
+    from ui import explain
+    assert explain.plain_name("mfcc_00_mean") == "overall energy of the voice"
+    assert explain.plain_name("rms_std") == "how much the loudness changes"
+    assert explain.level_words(0.2) == "about typical" and explain.level_words(-1) == "lower than typical"
+    quiet = np.zeros(16000 * 2, dtype=np.float32)
+    quiet[:4000] = 0.3
+    warns = explain.quality_checks(quiet, 2.0)
+    assert any("very short" in w for w in warns) and any("silence" in w for w in warns)
+    md = explain.report_markdown("a.wav", "Sounds closer to AI", _stub("likely_synthetic", 0.9)(b"", None), None, [], "ckpt")
+    assert "0.900" in md and "Not forensic proof" in md and "not uploaded" in md and "reportfraud.ftc.gov" in md
+
+
+def test_factors_from_real_checkpoint_if_present(monkeypatch):
+    import pytest
+    from src.model import MODEL_PATH
+    from ui import explain
+    if not MODEL_PATH.is_file():
+        pytest.skip("models/baseline.joblib not present on this machine")
+    monkeypatch.delenv("ECHOPROOF_MODEL_PATH", raising=False)
+    out = explain.factors(_wav(2.0), "tone.wav")
+    assert out and len(out) == 3 and out[0]["strength"] == 1.0 and {o["toward"] for o in out} <= {"ai", "human"}

@@ -1,30 +1,27 @@
-"""Thin adapter over the backend contract; never fabricates predictions."""
+"""Thin adapter over the backend contract plus the result card markup; never fabricates predictions."""
 
 import hashlib
 import html
-import math
 import os
 from pathlib import Path
 
+from ui.explain import level_words
 from ui.theme import term, tip
 
 REQUIRED = {"status", "label", "synthetic_score", "threshold", "segments", "model_version", "message"}
-LABELS = {
-    "likely_human": "Model output: likely human",
-    "likely_synthetic": "Model output: likely synthetic",
-    "inconclusive": "Model output: inconclusive",
+HEADLINES = {
+    "likely_synthetic": ("ai", "This clip sounds closer to AI-generated speech"),
+    "likely_human": ("human", "This clip sounds closer to a real human voice"),
+    "inconclusive": ("unsure", "We can't tell from this clip"),
 }
-TONE = {"likely_human": "human", "likely_synthetic": "synth", "inconclusive": "mid"}
 BAND = 0.05  # mirrors the abstention band in src/inference.py; display only
 
 SCORE_TIP = ("A number from 0 to 1 that the model produces. Near 0: the audio resembles the real speech it was "
-             "trained on. Near 1: it resembles the AI-generated speech. It is not a percent chance.")
-THRESHOLD_TIP = ("The cut-off the team picked using practice data. Scores at or above it are labeled synthetic, "
-                 "below it human. Scores very close to it are called inconclusive.")
-GAUGE_TIP = ("The needle is the model score. Green: human-like. Red: synthetic-like. Amber: too close to call. "
-             "The dark tick marks the decision threshold.")
-EXPERIMENTAL_TIP = ("Trained on one public dataset of 14 real YouTube sources and several voice generators. "
-                    "It has not been tested on everyday microphones, rooms, or languages.")
+             "trained on. Near 1: it resembles AI-generated speech. It is not a percent chance.")
+THRESHOLD_TIP = ("The cut-off the team picked using practice data. At or above it the clip is labeled AI-like, "
+                 "below it human-like. Scores very close to it are called can't tell.")
+WHY_TIP = ("The measured properties of this recording that moved the model's score the most. They describe the "
+           "recording, not the person, and they are not proof.")
 CHECKPOINT_TIP = ("The checkpoint is the saved, trained model file. The sha256 is its fingerprint: if it matches "
                   "the team's report, this app is running exactly that model.")
 
@@ -52,6 +49,13 @@ def model_source() -> tuple[str, bool, bool]:
     return shown, path.is_file(), bool(os.environ.get("ECHOPROOF_MODEL_PATH"))
 
 
+def checkpoint_label() -> str:
+    shown, exists, _ = model_source()
+    if not exists:
+        return f"{shown} (not found)"
+    return f"{shown} · sha256 {hashlib.sha256(_model_path().read_bytes()).hexdigest()[:12]}"
+
+
 def run_detector(audio_bytes: bytes, filename: str | None) -> dict:
     """Call src.inference.predict_audio (local, no network). Falls back to `unavailable`."""
     try:
@@ -67,65 +71,66 @@ def run_detector(audio_bytes: bytes, filename: str | None) -> dict:
     return result
 
 
-def _pt(v: float, r: float = 120) -> tuple[float, float]:
-    a = math.pi * (1 - v)
-    return 150 + r * math.cos(a), 150 - r * math.sin(a)
+def headline(res: dict) -> tuple[str, str]:
+    """(tone, sentence) for the top of the result card."""
+    if res["status"] == "ok":
+        return HEADLINES.get(res["label"], HEADLINES["inconclusive"])
+    return "off", "We couldn't check this clip" if res["status"] == "invalid" else "Checking isn't available right now"
 
 
-def _arc(a: float, b: float, color: str) -> str:
-    if b <= a:
-        return ""
-    (x1, y1), (x2, y2) = _pt(a), _pt(b)
-    return (f'<path d="M{x1:.1f} {y1:.1f} A120 120 0 0 1 {x2:.1f} {y2:.1f}" fill="none" '
-            f'stroke="{color}" stroke-width="14"/>')
-
-
-def gauge_svg(score: float, thr: float) -> str:
+def meter_html(score: float, thr: float) -> str:
     lo, hi = max(0.0, thr - BAND), min(1.0, thr + BAND)
-    (tx1, ty1), (tx2, ty2) = _pt(thr, 104), _pt(thr, 136)
-    return (
-        '<svg class="gauge" viewBox="0 0 300 172" role="img" '
-        f'aria-label="Gauge: model score {score:.3f}, threshold {thr:.3f}">'
-        + _arc(0, lo, "rgba(60,203,154,.6)") + _arc(lo, hi, "rgba(233,180,76,.65)") + _arc(hi, 1, "rgba(255,107,111,.6)")
-        + f'<line x1="{tx1:.1f}" y1="{ty1:.1f}" x2="{tx2:.1f}" y2="{ty2:.1f}" stroke="#ECEBF0" stroke-width="2.5"/>'
-        f'<g class="needle" style="--a:{-90 + 180 * score:.1f}deg">'
-        '<line x1="150" y1="150" x2="150" y2="46" stroke="#ECEBF0" stroke-width="3" stroke-linecap="round"/></g>'
-        '<circle cx="150" cy="150" r="9" fill="#ECEBF0"/><circle cx="150" cy="150" r="3.5" fill="#15161B"/>'
-        '<text x="22" y="170">0 · human-like</text><text x="278" y="170" text-anchor="end">synthetic-like · 1</text>'
-        "</svg>"
-    )
+    return (f'<div class="meter" role="img" aria-label="Model score {score:.3f} on a scale from 0 (human-like) to 1 '
+            f'(AI-like); threshold {thr:.3f}"><div class="track">'
+            f'<span class="band" style="left:{lo:.1%};width:{hi - lo:.1%}"></span>'
+            f'<span class="thr" style="left:{thr:.1%}"></span><span class="pin" style="left:{score:.1%}"></span></div>'
+            '<div class="ends"><span>Human-like</span><span>AI-like</span></div></div>')
 
 
-def result_html(res: dict) -> str:
-    """Markup for the detector card. Scores are shown raw; never as probabilities."""
+def why_html(why: list[dict] | None) -> str:
+    if why is None:
+        return ('<div class="section-h">Why</div><p class="note">The current model doesn\'t expose which measurements '
+                "drove its score, so no breakdown is shown.</p>")
+    items = "".join(
+        f'<li class="{w["toward"]}"><span class="what">{html.escape(w["label"].capitalize())}'
+        f'<span class="lvl"> · {level_words(w["level"])}</span></span>'
+        f'<span class="dir {w["toward"]}">{"→ AI-like" if w["toward"] == "ai" else "→ human-like"}</span>'
+        f'<span class="bar"><b style="width:{w["strength"]:.0%}"></b></span></li>' for w in why)
+    return f'<div class="section-h">Why {tip(WHY_TIP)}</div><ul class="why">{items}</ul>'
+
+
+def result_html(res: dict, why: list[dict] | None = None, warnings: list[str] | None = None) -> str:
+    """Result card. Scores are shown raw and never as probabilities; wording follows the backend label."""
     ok = res["status"] == "ok"
-    title = LABELS.get(res["label"], LABELS["inconclusive"]) if ok else {"invalid": "Invalid audio"}.get(res["status"], "Detector unavailable")
-    tone = TONE.get(res["label"], "mid") if ok else "off"
+    tone, sentence = headline(res)
     score, thr = res["synthetic_score"], res["threshold"]
     fmt = lambda v: "—" if v is None else f"{v:.3f}"
-    gauge = (f'{gauge_svg(score, thr)}<p class="note dial">How to read the dial {tip(GAUGE_TIP, "below")}</p>'
-             if ok else "")
+    sub = ("A signal to weigh, not proof. Whatever the result, verify before you act."
+           if ok else html.escape(res["message"]))
     near = ('<p class="note">The score is close to the decision threshold, so the result is shown as inconclusive.</p>'
             if ok and res["label"] == "inconclusive" else "")
-    version = (f'<span class="chip plain" data-tip="{html.escape(CHECKPOINT_TIP)}" tabindex="0">model version '
-               f'{html.escape(str(res["model_version"]))}</span>') if res["model_version"] else ""
-    proof = term("Not forensic proof", "It cannot be used to prove a recording is real or fake, "
-                                       "for example in a dispute or in court.")
+    warn_items = list(warnings or []) + (["Genuine speech may be scored as synthetic under unfamiliar recording "
+                                          "conditions, such as different microphones, rooms, languages, or long "
+                                          "pauses between words."] if ok else [])
+    warns = ('<div class="section-h">Things that make this clip harder to judge</div><ul class="warns">'
+             + "".join(f"<li>{html.escape(w)}</li>" for w in warn_items) + "</ul>") if warn_items else ""
+    proof = term("Not forensic proof", "It cannot be used to prove a recording is real or fake, for example in a "
+                                       "dispute or in court.")
     return (
-        f'<span class="chip warn" tabindex="0" data-tip="{html.escape(EXPERIMENTAL_TIP)}">'
-        "Experimental · not validated across diverse microphone recordings</span>"
-        f"{gauge}"
-        f'<div class="verdict {tone}">{title}</div>'
-        f'<p class="note">{html.escape(res["message"])}</p>'
-        '<div class="readout">'
-        f'<div><b>{fmt(score)}</b><span>Model score (synthetic) {tip(SCORE_TIP)}</span></div>'
-        f'<div><b>{fmt(thr)}</b><span>Model decision threshold {tip(THRESHOLD_TIP, "end")}</span></div></div>'
-        f"{near}"
-        '<p class="note">Model scores are uncalibrated classifier outputs, not a confidence level or a verified '
-        f"probability that the audio is authentic or synthetic. {proof}.</p>"
-        '<p class="note subtle">Genuine speech may be scored as synthetic under unfamiliar recording conditions, '
-        "such as different microphones, rooms, languages, or long pauses between words.</p>"
-        f'<div class="model-tag">{version}</div>'
+        f'<div class="answer {tone}"><span class="dot"></span><div><h2>{sentence}</h2><p>{sub}</p></div></div>'
+        + (meter_html(score, thr) if ok else "")
+        + (f'<div class="figures"><span>Model score (synthetic) <b>{fmt(score)}</b> {tip(SCORE_TIP)}</span>'
+           f'<span>Model decision threshold <b>{fmt(thr)}</b> {tip(THRESHOLD_TIP, "end")}</span></div>' if ok else "")
+        + near
+        + (why_html(why) if ok else "")
+        + warns
+        + '<div class="fine"><span class="chip warn" tabindex="0" data-tip="This detector is a research prototype. It '
+          'has not been tested on everyday microphones, rooms or languages.">Experimental · not validated across '
+          "diverse microphone recordings</span><br>Model scores are uncalibrated classifier outputs, not a confidence "
+          f"level or a verified probability that the audio is authentic or synthetic. {proof}."
+          + (f' <span data-tip="{html.escape(CHECKPOINT_TIP)}" tabindex="0">model version '
+             f'{html.escape(str(res["model_version"]))}</span>' if res["model_version"] else "")
+          + "</div>"
     )
 
 
@@ -133,8 +138,7 @@ def model_html() -> str:
     shown, exists, overridden = model_source()
     kind = "custom model (ECHOPROOF_MODEL_PATH)" if overridden else "saved baseline"
     if exists:
-        digest = hashlib.sha256(_model_path().read_bytes()).hexdigest()[:12]
         return (f'<span class="chip ok" tabindex="0" data-tip="{html.escape(CHECKPOINT_TIP)}">{html.escape(kind)} · '
-                f'{html.escape(shown)} · sha256 {digest}</span>')
+                f'{html.escape(checkpoint_label())}</span>')
     return (f'<span class="chip warn">model file not found · {html.escape(shown)}</span>'
             '<p class="note">Copy the trained checkpoint into place. Nothing is trained or predicted until it exists.</p>')
