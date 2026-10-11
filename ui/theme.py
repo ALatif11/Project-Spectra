@@ -23,7 +23,7 @@ header[data-testid="stHeader"], #MainMenu, footer { display:none; }
 /* Hero */
 .eyebrow { display:inline-block; padding:.3rem .75rem; border:1px solid var(--hair); border-radius:999px;
   background:rgba(255,255,255,.04); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--mint); font-weight:500; }
-.hero h1 { font-size: clamp(2.4rem, 6vw, 4.6rem); line-height:1.02; letter-spacing:-.035em; font-weight:600; margin:1.1rem 0 .9rem; color:#f4f4f6; }
+.hero h1 { font-size: clamp(2.4rem, 6vw, 4.6rem); line-height:1.02; letter-spacing:-.035em; font-weight:600; margin:1.1rem 0 .9rem; color:#f4f4f6 !important; }
 .hero h1 span { background:linear-gradient(100deg,var(--mint),var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent; }
 .hero p { max-width: 38rem; color:var(--mute); font-size:1.05rem; line-height:1.6; margin:0 0 2.2rem; }
 
@@ -35,12 +35,13 @@ button[data-baseweb="tab"] { border-radius:999px; padding:.55rem 1.1rem; height:
 button[data-baseweb="tab"][aria-selected="true"] { background:rgba(255,255,255,.10); color:#fff; box-shadow: inset 0 1px 1px rgba(255,255,255,.15); }
 div[data-baseweb="tab-highlight"], div[data-baseweb="tab-border"] { display:none; }
 
-/* Double-bezel cards: outer shell = keyed container, inner core = child block */
-[class*="st-key-bezel"] { padding:.4rem; border:1px solid var(--hair); border-radius:2rem; background:rgba(255,255,255,.03);
-  animation: rise .9s var(--ease) both; transition: transform .7s var(--ease), border-color .7s var(--ease); }
-[class*="st-key-bezel"]:hover { border-color: rgba(255,255,255,.16); }
-[class*="st-key-bezel"] > div { background:linear-gradient(180deg,#0e0e11,#09090b); border-radius:calc(2rem - .4rem);
-  padding:1.6rem 1.6rem 1.4rem; box-shadow: inset 0 1px 1px rgba(255,255,255,.12); height:100%; }
+/* Double-bezel: the keyed container is the inner core; box-shadow rings form the outer shell */
+[class*="st-key-bezel"] { margin:.4rem; padding:1.6rem 1.6rem 1.4rem; border-radius:calc(2rem - .4rem);
+  background:linear-gradient(180deg,#0e0e11,#09090b);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.12), 0 0 0 .4rem rgba(255,255,255,.03), 0 0 0 calc(.4rem + 1px) var(--hair);
+  animation: rise .9s var(--ease) both; transition: box-shadow .7s var(--ease); }
+[class*="st-key-bezel"]:hover { box-shadow: inset 0 1px 1px rgba(255,255,255,.12), 0 0 0 .4rem rgba(255,255,255,.04), 0 0 0 calc(.4rem + 1px) rgba(255,255,255,.18); }
+[data-testid="stIconMaterial"], .material-symbols-rounded { font-family: 'Material Symbols Rounded' !important; }
 .card-h { display:flex; align-items:center; gap:.6rem; margin:0 0 1rem; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--mute); font-weight:500; }
 .card-h i { width:6px; height:6px; border-radius:50%; background:var(--mint); box-shadow:0 0 12px var(--mint); }
 
@@ -68,7 +69,7 @@ audio { width:100%; filter: invert(.92) hue-rotate(140deg) saturate(.6); border-
 .empty h3 { font-size:1.5rem; letter-spacing:-.02em; font-weight:600; margin:1rem 0 .5rem; color:#f4f4f6; }
 .empty p { color:var(--mute); max-width:30rem; margin:0 auto; line-height:1.6; }
 
-@media (max-width: 768px) { .block-container { padding:1.2rem 1rem 4rem; } [class*="st-key-bezel"] > div { padding:1.2rem 1rem; } }
+@media (max-width: 768px) { .block-container { padding:1.2rem 1rem 4rem; } [class*="st-key-bezel"] { padding:1.2rem 1rem; } }
 @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
 </style>
 """
