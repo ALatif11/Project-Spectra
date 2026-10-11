@@ -22,11 +22,15 @@
 
 ## Prompt C — You / Codex: real training and inference
 
-> Follow AGENTS.md and preserve the frontend ownership boundary. Implement a real dataset loader and reproducible training/evaluation workflow in `src/` plus appropriate tests. Prefer ASVspoof 2019 Logical Access with explicit bonafide/spoof labels and official train/development/evaluation protocol. Provide a documented CLI for a *small, bounded* training subset; never download the full dataset automatically. If real labeled audio is absent, make the trainer explain how to obtain/configure it and exit cleanly; do not fabricate trained checkpoints or results.
+> Follow AGENTS.md and preserve frontend ownership. Replace ASVspoof references with the public Gary Stafford dataset: `garystafford/deepfake-audio-detection` (v4) at https://huggingface.co/datasets/garystafford/deepfake-audio-detection. It has 1,866 16-kHz mono FLAC clips, with `real/` (933) and `fake/` (933), and only ONE Hugging Face `train` split. **It has no official held-out test split.**
 >
-> Train a fast scikit-learn pipeline (scaler fitted on train only + logistic regression) from spectrogram-derived MFCC/spectral features. Persist a real versioned model checkpoint, feature settings, selected validation threshold and metadata. Write `src/inference.py` with the EXACT `predict_audio(audio_bytes: bytes, filename: str | None = None) -> dict` contract in AGENTS.md. Return `unavailable` when no model exists; `invalid` for bad audio; no random or hard-coded detection values. Return per-segment synthetic scores. Evaluate only with held-out labels and save real metrics as JSON. Add and run narrow tests. Do not edit `app.py` or `ui/`.
+> Implement `scripts/download_dataset.py` using `huggingface_hub.snapshot_download` to retrieve only `real/*.flac`, `fake/*.flac`, and `README.md` into `data/deepfake-audio-detection/`, but don't download during module import, app startup, or without an explicit user command. Avoid duplicating Parquet and raw audio. Map folder labels `real=0` / `fake=1`, and validate this against inspected sample metadata if reading the Parquet alternative. Detect and report corrupt or missing clips.
 >
-> Completion output: commands to train, evaluate, test inference, and precise model/threshold limitations. Stop before building Luminal agents.
+> Crucial: genuine audio was split from only 14 YouTube sources. Group all `yt_0000_*` samples together, and likewise group synthetic chunks with their source prefix and ID, e.g., `el_0001_*`. Inspect actual filenames before implementing regex. Create persistent seeded GROUP-AWARE train, validation, and untouched test partitions, target ~70/15/15 with both classes in every partition. Save `data/splits.csv`; test that no original source/group is shared across partitions. Never use random row-level train_test_split on segments. If grouping is incomplete, explain limitations. Optionally measure one held-out TTS-vendor robustness test separately.
+>
+> Reuse existing audio feature functions and train a fast scikit-learn `StandardScaler` + `LogisticRegression` model on spectral/MFCC features. Fit scaler only on training, select threshold only on validation. Persist model and feature settings. Implement exact `src.inference.predict_audio(audio_bytes: bytes, filename: str | None = None) -> dict` contract from AGENTS.md, with local segment inference and real scores. Save actual validation and final test metrics. Add tests for downloader manifest, class mapping, grouping, no leakage, saved model, and invalid audio. No mocked metrics or checkpoints. Edit backend-owned files only.
+>
+> Give me exact commands to download, prepare, train, evaluate, and locally test inference. Stop after this milestone passes. No Luminal integration yet.
 
 ## Prompt D — Teammate / Claude Code: wire backend and visualize
 
@@ -36,7 +40,7 @@
 
 ## Prompt E — You / Codex: bounded Luminal self-improvement loop
 
-> Follow AGENTS.md. Implement the Luminal agent experiment extension only after the baseline trainer and inference work. Limit changes to `agents/`, backend-owned code, and backend tests. No AWS and no broad ML framework changes.
+> Follow AGENTS.md. Implement the Luminal agent experiment extension only after the baseline trainer and inference work on the Gary Stafford dataset. Reuse the fixed group-aware train/validation splits from `data/splits.csv` in EVERY experiment; never train on held-out test groups, and never change group assignments to inflate validation accuracy. Limit changes to `agents/`, backend-owned code, and backend tests. No AWS and no broad ML framework changes.
 >
 > Implement `luminal_client.py` with configurable credentials, base URL, model ID, timeouts, and explicit, informative errors. Do not guess a Luminal endpoint or model ID; consult actual available API docs/config or leave placeholders for environment variables. Create three **distinct** proposal roles: features, classifier, robustness. Each produces structured JSON constrained to an allowlisted experiment schema; reject invalid settings. The LLM may *propose* experiments but cannot execute arbitrary generated Python/shell. A deterministic Python runner fits allowed scikit-learn candidates, computes real validation metrics on fixed partitions, and records seed, parameters, status, runtime, and accepted/rejected decision. It must not access final test labels during optimization.
 >
@@ -63,3 +67,7 @@
 - For follow-up bugs, paste the traceback plus the specific file, and ask for a targeted fix only.
 - Commit a working milestone before starting the next prompt.
 - Before judging, prioritize a reproducible local live demo over optional AWS or a cloud deployment.
+
+## Quick dataset-switch instruction (send NOW if Codex has already started on ASVspoof)
+
+> We are switching to `garystafford/deepfake-audio-detection` (Hugging Face, v4). Read updated AGENTS.md. Preserve completed audio preprocessing, spectrogram, features, and the fixed `predict_audio` API. Replace only dataset-specific assumptions, data download/loading, split generation, training instructions, and tests. Dataset is public; 1,866 16kHz FLAC samples in real/fake folders. No official validation/test split; create reproducible grouped splits and keep source chunks from the same YouTube video or synthetic source in one split. Label `real=0`, `fake=1` explicitly. Generate a one-time raw FLAC downloader script and exact commands, but do not auto-download on Streamlit startup. Ensure dataset files/caches are gitignored. Don't touch frontend files, Luminal settings or secrets. Run tests and provide the precise next command I should execute.

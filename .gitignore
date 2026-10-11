@@ -1,2 +1,11 @@
 src/.env
 src/.env.save
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+data/
+runs/
+models/*.joblib
+models/*.pt
