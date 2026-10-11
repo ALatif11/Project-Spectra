@@ -1,9 +1,10 @@
+# Mirrors ui/theme.py TOKENS (bg, surface2, fg, brand); keep in sync.
 [theme]
 base = "dark"
-backgroundColor = "#050505"
-secondaryBackgroundColor = "#0b0b0d"
-textColor = "#ededf0"
-primaryColor = "#5eead4"
+backgroundColor = "#0b0c0e"
+secondaryBackgroundColor = "#1a1b20"
+textColor = "#ecedef"
+primaryColor = "#5b8cff"
 font = "sans serif"
 
 [browser]
