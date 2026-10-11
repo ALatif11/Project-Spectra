@@ -170,11 +170,76 @@ def test_prepare_persists_and_preserves_partitions(technical_dataset):
     assert splits.read_bytes() == original
 
 
-def test_duplicate_pcm_rejected(technical_dataset):
+def test_duplicates_explicitly_excluded_and_originals_preserved(technical_dataset):
     root, splits = technical_dataset
     files = sorted((root / "real").glob("*.flac"))
     files[1].write_bytes(files[0].read_bytes())
-    with pytest.raises(ValueError, match="integrity failed"):
-        dataset.prepare(root, splits)
-    assert not splits.exists()
-    assert json.loads(splits.with_name("preparation_report.json").read_text())["duplicates"]
+    rows = dataset.prepare(root, splits)
+    assert len(rows) == 11
+    assert files[1].is_file() and files[1].read_bytes() == files[0].read_bytes()
+    report = json.loads(splits.with_name("preparation_report.json").read_text())
+    assert report["duplicates"] == [[files[0].relative_to(root).as_posix(), files[1].relative_to(root).as_posix()]]
+    assert len(dataset.load_splits(splits)) == 11
+    before = splits.read_bytes()
+    dataset.prepare(root, splits)
+    assert splits.read_bytes() == before
+
+
+def test_raw_stereo_44100_is_normalized_without_rewriting(technical_dataset):
+    root, splits = technical_dataset
+    path = sorted((root / "real").glob("*.flac"))[0]
+    waveform = 0.2 * np.sin(2 * np.pi * 440 * np.arange(110250) / 44100)
+    sf.write(path, np.column_stack([waveform, waveform]), 44100, format="FLAC")
+    payload = path.read_bytes()
+    rows = dataset.prepare(root, splits)
+    row = next(row for row in rows if row["path"] == path.relative_to(root).as_posix())
+    assert row["source_sample_rate"] == 44100 and row["source_channels"] == 2
+    assert path.read_bytes() == payload
+    decoded = dataset.decode_audio(payload)
+    assert decoded.sample_rate == 16000 and decoded.samples.ndim == 1
+    assert row["pcm_sha256"] == hashlib.sha256(decoded.samples.tobytes()).hexdigest()
+
+
+def test_transitive_duplicate_sources_share_partition_and_cannot_be_forged():
+    rows = manifest_rows()
+    groups = sorted(group for group in {row["group"] for row in rows if row["label"] == 1}
+                    if sum(row["group"] == group for row in rows) >= 2)[:3]
+    chosen = [next(row for row in rows if row["group"] == group) for group in groups]
+    chosen[1]["pcm_sha256"] = chosen[0]["pcm_sha256"]
+    bridge = next(row for row in rows if row["group"] == groups[1] and row is not chosen[1])
+    chosen[2]["pcm_sha256"] = bridge["pcm_sha256"]
+    assigned = dataset.assign_groups(rows)
+    linked = [row for row in assigned if row["group"] in {item["group"] for item in chosen}]
+    assert len({row["split"] for row in linked}) == 1
+    assert len({row["leakage_group"] for row in linked}) == 1
+    assert sum(bool(row["duplicate_of"]) for row in linked) == 2
+    duplicate = next(row for row in linked if row["duplicate_of"])
+    duplicate["duplicate_of"] = ""
+    with pytest.raises(ValueError, match="exclusions"):
+        dataset.validate_splits(assigned)
+
+
+def test_conflicting_duplicate_labels_fail_closed():
+    rows = manifest_rows()
+    rows[-1]["pcm_sha256"] = rows[0]["pcm_sha256"]
+    assert rows[-1]["label"] != rows[0]["label"]
+    with pytest.raises(ValueError, match="Conflicting class labels"):
+        dataset.assign_groups(rows)
+
+
+def test_optimization_loader_never_interprets_test_labels(technical_dataset):
+    import csv
+
+    root, splits = technical_dataset
+    dataset.prepare(root, splits)
+    with splits.open(newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    for row in rows:
+        if row["split"] == "test":
+            row["label"] = "FORBIDDEN_FINAL_LABEL"
+    with splits.open("w", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=dataset.FIELDS)
+        writer.writeheader()
+        writer.writerows(rows)
+    optimization = dataset.load_splits(splits, optimization_only=True)
+    assert {row["split"] for row in optimization} == {"train", "validation"}

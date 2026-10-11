@@ -46,7 +46,7 @@ def select_threshold(labels, scores) -> float:
 def train(root: Path, splits: Path, model_path: Path, run_dir: Path, cache: Path) -> dict:
     if model_path.exists() or (run_dir / "test_started.json").exists() or (run_dir / "test_metrics.json").exists():
         raise ValueError("Preserve existing model/final evaluation; choose a new model/run path before test access.")
-    rows = load_splits(splits)
+    rows = load_splits(splits, optimization_only=True)
     train_rows = [row for row in rows if row["split"] == "train"]
     validation = [row for row in rows if row["split"] == "validation"]
     seed = int(rows[0]["seed"])

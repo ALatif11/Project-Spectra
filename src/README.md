@@ -58,8 +58,12 @@ Silence (RMS <=1e-5) is flagged, not assigned an authenticity label.
 ## Dataset and explicit workflow
 
 Credit: Gary Stafford, [Deepfake Audio Detection Dataset (v4)](https://huggingface.co/datasets/garystafford/deepfake-audio-detection),
-CC BY 4.0. It contains 1,866 English mono 16 kHz FLAC clips: 933 `real/` (label
-0), 933 `fake/` (label 1). Hugging Face exposes **one `train` split**, with no
+CC BY 4.0. It contains 1,866 English FLAC clips: 933 `real/` (label
+0), 933 `fake/` (label 1). Inspection of the pinned raw files found all genuine
+clips are **44.1 kHz stereo**, while synthetic clips are **16 kHz mono**, despite
+the dataset card describing 16 kHz mono throughout. The shared local decoder
+downmixes and resamples before both training and inference; original files are
+preserved. Hugging Face exposes **one `train` split**, with no
 official validation or test partition. We use raw folders, never Parquet, and
 never infer labels from alphabetical order. No dataset or model is bundled.
 
@@ -82,26 +86,38 @@ or keeping a second full Hub snapshot. `data/deepfake-audio-detection/provenance
 records credit/license/revision; the original dataset README is preserved.
 Network failures stop with a nonzero exit code; rerun the same command.
 
-Preparation checks the full manifest, FLAC format, rate/channels/duration, local
-decoding, silence, and duplicate decoded waveforms. Missing, unexpected, empty,
-corrupt, or duplicate clips stop preparation and are listed in
-`data/preparation_report.json`; they are never silently omitted. The downloader's
+Preparation checks the full manifest, FLAC format, duration, bounded local
+decoding/normalization, silence, and duplicate normalized waveforms. Missing,
+unexpected, empty, corrupt, or conflicting-label duplicate clips stop preparation
+and are listed in `data/preparation_report.json`. Exact normalized duplicates of
+the same class are explicitly excluded: the lexicographically first original
+path is retained. Every original remains on disk and has a row in `data/splits.csv`;
+excluded rows point to their retained original via `duplicate_of` and are never
+loaded for training, scoring, or final evaluation. The inspected data has 216
+exclusions (3 genuine, 213 synthetic), leaving 930 genuine and 720 synthetic
+clips. This exact-match policy does not detect all near duplicates. The downloader's
 `download_report.json` checks inventory only; preparation checks actual decoding.
 
 Every `yt_0000_*` belongs to `yt_0000`, including `_c_` and `_p2_` chunks.
 Synthetic recordings likewise use vendor prefix plus ID (`el_0001_*` belongs to
 `el_0001`). All 1,866 inspected filenames match this rule: 14 real and 96 synthetic
-source groups. Unknown patterns fail rather than falling back to a row split.
-Seed 42 searches whole-group assignments using only class/sample counts, targeting
+source groups. Entire sources linked by duplicate waveforms, including links
+across vendors, are merged transitively into a `leakage_group` before partitioning.
+Original source IDs remain in `group`; linked originals and excluded copies all
+stay in one partition. Unknown patterns fail rather than falling back to a row split.
+Seed 42 searches whole-component assignments using only retained class/sample counts, targeting
 70/15/15 approximately; each partition must have both classes. `data/splits.csv`
 persists original paths, labels, group/vendor IDs, membership, seed, file hashes,
-and decoded-waveform hashes. Existing splits are preserved and verified against
+and decoded-waveform hashes, original sample rate/channels, leakage components,
+and duplicate exclusions. Readers verify exclusions/components against the
+persisted hashes and reject tampering or source leakage. Existing splits are preserved and verified against
 data/seed; changed membership/data are rejected. No row-level random split is used.
 
 Training extracts the existing 52 spectral/MFCC features from the same padded
 four-second windows used by inference. Features cache in `data/features/` by
 audio hash and feature policy. Only train/validation audio is processed during
-training. The scaler and logistic regression fit only training windows; each
+training. The optimization reader discards final test labels before validation
+and returns only retained train/validation rows. The scaler and logistic regression fit only training windows; each
 clip has unit total weight shared by its windows' actual durations. Clip scores
 are the duration-weighted mean of segment scores. Threshold maximizes validation
 clip balanced accuracy, with ties nearest 0.5. Validation metrics and individual
