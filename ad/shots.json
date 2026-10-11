@@ -1,0 +1,89 @@
+{
+  "_readme": "Shot list for ad/generate_ad.py. Model ids and argument names come from the Higgsfield API model pages (dash.higgsfield.ai/models/<id>/llms.txt). Speech is not set: record the voices yourself or paste a TTS model page to fill it in.",
+
+  "models": {
+    "image": "higgsfield-ai/soul/v2/standard",
+    "video": "kling-video/v3.0/std/text-to-video",
+    "video_from_image": "kling-video/v3.0/std/image-to-video",
+    "speech": "FILL_ME (a text-to-speech model id, or record the voices yourself)"
+  },
+
+  "arg_names": {
+    "prompt": "prompt",
+    "duration": "duration",
+    "start_image": "image_url",
+    "end_image": "last_image_url"
+  },
+
+  "defaults": {
+    "image": {"aspect_ratio": "16:9", "resolution": "1080p", "enhance_prompt": false, "seed": 4242},
+    "video": {"aspect_ratio": "16:9", "sound": "off", "cfg_scale": 0.5},
+    "speech": {}
+  },
+
+  "blocks": {
+    "CHARACTER": "Maya, a woman in her late twenties with shoulder-length dark curly hair, wearing an oversized dark green hoodie, no jewelry",
+    "LOCATION": "a small modern apartment kitchen at night, dark stone counter, matte black cabinets, a window with distant city lights",
+    "LIGHT": "low-key moody lighting: the only lights are the phone screen's cold blue glow and a faint warm strip light under the cabinets, soft haze",
+    "LOOK": "cinematic 35mm lens, shallow depth of field, subtle film grain, desaturated teal-and-graphite palette with a single indigo accent",
+    "NEGATIVE": "no readable text, no logos, no subtitles, no extra people, no distorted hands",
+    "MAYA": "Maya (late twenties, shoulder-length dark curly hair, oversized dark green hoodie)",
+    "SCENE": "dark modern apartment kitchen at night, stone counter, black cabinets",
+    "STYLE": "lit only by cold blue phone glow and faint warm under-cabinet light, cinematic 35mm, shallow depth of field, film grain, teal-graphite palette, slow camera, no text, no logos"
+  },
+
+  "shots": [
+    {
+      "name": "still_establishing",
+      "kind": "image",
+      "prompt": "Cinematic film still, wide shot. {LOCATION}. A smartphone lies face up on the dark stone counter, its screen glowing cold blue with an incoming call, the only bright point in the dark kitchen. {LIGHT}. {LOOK}. No people. {NEGATIVE}."
+    },
+    {
+      "name": "still_maya",
+      "kind": "image",
+      "args": {"seed": 5151},
+      "prompt": "Cinematic film still, medium close-up from the chest up. {CHARACTER}, leans on the counter in {LOCATION}, looking down at a smartphone on speakerphone that she holds flat at chest height with its screen facing up toward her face, so its cold blue glow lights her face from below. The phone and her hand sit at the bottom edge of the frame, mostly cropped out. Frightened, frozen expression. {LIGHT}. {LOOK}. {NEGATIVE}."
+    },
+    {
+      "name": "gen_a",
+      "kind": "video",
+      "start_image": "still_establishing",
+      "end_image": "still_maya",
+      "prompt": "A tense late-night phone call in a {SCENE}. {MAYA}. {STYLE}.",
+      "multi": [
+        {"duration": 4, "prompt": "Close-up, locked-off then slow push-in. A smartphone lying face up on the stone counter lights up with an incoming call, its cold blue glow filling the {SCENE}. {STYLE}."},
+        {"duration": 4, "prompt": "Macro close-up. The hand of {MAYA} slowly reaches into the blue light and picks up the phone from the counter in the {SCENE}. {STYLE}."},
+        {"duration": 7, "prompt": "Medium close-up, slow push-in on {MAYA}, leaning on the counter, listening on speakerphone to the phone held flat at chest height; its blue glow lights her face from below; phone and hand mostly below frame; her expression shifts from sleepy to fear. {STYLE}."}
+      ]
+    },
+    {
+      "name": "gen_b",
+      "kind": "video",
+      "prompt": "Abstract visual metaphor for voice cloning, dark and cinematic, indigo and cold blue light, film grain, slow camera, no text.",
+      "multi": [
+        {"duration": 5, "prompt": "Extreme close-up, slow pan. A glowing indigo sound waveform floating in darkness slowly breaks apart into thousands of tiny digital particles. Cinematic, shallow depth of field, film grain, teal-graphite palette, no text, no logos."},
+        {"duration": 5, "prompt": "Wide shot, slow push-in. A dark city at night where hundreds of apartment windows each glow with the cold blue light of a phone screen. Cinematic 35mm, film grain, teal-graphite palette, haze, no text, no logos."}
+      ]
+    },
+    {
+      "name": "gen_c",
+      "kind": "video",
+      "start_image": "still_maya",
+      "prompt": "Relief after the threat is understood, in a {SCENE}. {MAYA}. {STYLE}, plus a laptop screen's soft indigo glow.",
+      "multi": [
+        {"duration": 5, "prompt": "Medium shot, slow pan. {MAYA} sets the phone down on the counter and turns to an open laptop beside it, screen facing away from camera, soft indigo glow on her face, focused. {SCENE}. {STYLE}."},
+        {"duration": 5, "prompt": "Close-up, locked-off. {MAYA} exhales slowly, relaxes her shoulders and turns the phone face-down on the stone counter. {SCENE}. {STYLE}."}
+      ]
+    },
+    {
+      "name": "voice_caller",
+      "kind": "speech",
+      "prompt": "Honey, it's me. I'm in trouble. I need you to send money right now. Please don't tell anyone."
+    },
+    {
+      "name": "voice_narrator",
+      "kind": "speech",
+      "prompt": "Cloned voices are cheap now. Our ears weren't built for this. ... So we built a second pair of ears. ... EchoProof listens on your own computer, in four-second chunks, and scores how closely a voice matches synthetic speech it has studied. ... Behind it, three AI agents propose improvements. Every idea is trained and measured. Only real gains are kept, and failures stay on the record. ... It's honest about its limits. A hint, not a verdict. And your audio never leaves your machine. ... EchoProof. Listen closer."
+    }
+  ]
+}
