@@ -1,0 +1,278 @@
+{
+  "model_sha256": "e7263a3a4a1c789ffcd3765f1fb12ec2d41f0334057f57950c75a1c3d0a448bc",
+  "freeze_sha256": "6c5e283dc96b97f83c6c0b521fba47ae10e7b668062ea7904296cc4bf563dbdc",
+  "test_manifest_sha256": "38c2075ab91444839d294caf7f9ca963672821af3eb496af0273c7f68db6a368",
+  "partition": "local_sealed_test",
+  "evaluated_at": "2026-10-11T23:18:25.152367+00:00",
+  "model_version": "inthewild-v1",
+  "seed": 42,
+  "provenance": {
+    "repo": "SpeechAntiSpoofingBenchmarks/InTheWild",
+    "revision": "f36fbe7e4e009e444a4985c66d76ab1d9439f901",
+    "baseline_sha256": "eb177b5824fddf3dc351c06f86de40b49d8385694ce36746031a6e4540298bc1"
+  },
+  "metrics": {
+    "n": 1800,
+    "threshold": 0.41431927302943794,
+    "balanced_accuracy": 0.935,
+    "f1_synthetic": 0.9362397820163487,
+    "false_positive_rate": 0.08444444444444445,
+    "false_negative_rate": 0.04555555555555556,
+    "confusion_matrix_real_fake": [
+      [
+        824,
+        76
+      ],
+      [
+        41,
+        859
+      ]
+    ],
+    "precision_synthetic": 0.9187165775401069,
+    "recall_synthetic": 0.9544444444444444
+  },
+  "confusion_matrix_semantics": "Rows: actual [human, synthetic]; columns: predicted [human, synthetic].",
+  "decision_policy": "Binary score >= frozen validation threshold; UI abstention band is excluded from these metrics.",
+  "per_speaker": {
+    "Alexandria Ocasio-Cortez": {
+      "n": 201,
+      "threshold": 0.41431927302943794,
+      "balanced_accuracy": 0.950657894736842,
+      "f1_synthetic": 0.8672566371681416,
+      "false_positive_rate": 0.09868421052631579,
+      "false_negative_rate": 0.0,
+      "confusion_matrix_real_fake": [
+        [
+          137,
+          15
+        ],
+        [
+          0,
+          49
+        ]
+      ],
+      "precision_synthetic": 0.765625,
+      "recall_synthetic": 1.0
+    },
+    "Bob Ross": {
+      "n": 55,
+      "threshold": 0.41431927302943794,
+      "balanced_accuracy": 1.0,
+      "f1_synthetic": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "confusion_matrix_real_fake": [
+        [
+          30,
+          0
+        ],
+        [
+          0,
+          25
+        ]
+      ],
+      "precision_synthetic": 1.0,
+      "recall_synthetic": 1.0
+    },
+    "Christopher Hitchens": {
+      "n": 357,
+      "threshold": 0.41431927302943794,
+      "balanced_accuracy": 0.9974874371859297,
+      "f1_synthetic": 0.9974811083123426,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.005025125628140704,
+      "confusion_matrix_real_fake": [
+        [
+          158,
+          0
+        ],
+        [
+          1,
+          198
+        ]
+      ],
+      "precision_synthetic": 1.0,
+      "recall_synthetic": 0.9949748743718593
+    },
+    "JFK": {
+      "n": 284,
+      "threshold": 0.41431927302943794,
+      "balanced_accuracy": 0.9448301886792453,
+      "f1_synthetic": 0.935361216730038,
+      "false_positive_rate": 0.09433962264150944,
+      "false_negative_rate": 0.016,
+      "confusion_matrix_real_fake": [
+        [
+          144,
+          15
+        ],
+        [
+          2,
+          123
+        ]
+      ],
+      "precision_synthetic": 0.8913043478260869,
+      "recall_synthetic": 0.984
+    },
+    "Jerry Seinfeld": {
+      "n": 33,
+      "threshold": 0.41431927302943794,
+      "balanced_accuracy": 0.7392857142857143,
+      "f1_synthetic": 0.7916666666666666,
+      "false_positive_rate": 0.2,
+      "false_negative_rate": 0.32142857142857145,
+      "confusion_matrix_real_fake": [
+        [
+          4,
+          1
+        ],
+        [
+          9,
+          19
+        ]
+      ],
+      "precision_synthetic": 0.95,
+      "recall_synthetic": 0.6785714285714286
+    },
+    "Louis Farrakhan": {
+      "n": 218,
+      "threshold": 0.41431927302943794,
+      "balanced_accuracy": 0.8517848164906989,
+      "f1_synthetic": 0.7441860465116279,
+      "false_positive_rate": 0.28104575163398693,
+      "false_negative_rate": 0.015384615384615385,
+      "confusion_matrix_real_fake": [
+        [
+          110,
+          43
+        ],
+        [
+          1,
+          64
+        ]
+      ],
+      "precision_synthetic": 0.5981308411214953,
+      "recall_synthetic": 0.9846153846153847
+    },
+    "Lyndon Johnson": {
+      "n": 61,
+      "threshold": 0.41431927302943794,
+      "balanced_accuracy": 1.0,
+      "f1_synthetic": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "confusion_matrix_real_fake": [
+        [
+          53,
+          0
+        ],
+        [
+          0,
+          8
+        ]
+      ],
+      "precision_synthetic": 1.0,
+      "recall_synthetic": 1.0
+    },
+    "Orson Welles": {
+      "n": 82,
+      "threshold": 0.41431927302943794,
+      "balanced_accuracy": 1.0,
+      "f1_synthetic": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "confusion_matrix_real_fake": [
+        [
+          13,
+          0
+        ],
+        [
+          0,
+          69
+        ]
+      ],
+      "precision_synthetic": 1.0,
+      "recall_synthetic": 1.0
+    },
+    "Scarlett Johansson": {
+      "n": 31,
+      "threshold": 0.41431927302943794,
+      "balanced_accuracy": 0.9090909090909092,
+      "f1_synthetic": 0.9523809523809523,
+      "false_positive_rate": 0.18181818181818182,
+      "false_negative_rate": 0.0,
+      "confusion_matrix_real_fake": [
+        [
+          9,
+          2
+        ],
+        [
+          0,
+          20
+        ]
+      ],
+      "precision_synthetic": 0.9090909090909091,
+      "recall_synthetic": 1.0
+    },
+    "The Notorious B.I.G.": {
+      "n": 192,
+      "threshold": 0.41431927302943794,
+      "balanced_accuracy": 0.9239130434782609,
+      "f1_synthetic": 0.9176470588235294,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.15217391304347827,
+      "confusion_matrix_real_fake": [
+        [
+          8,
+          0
+        ],
+        [
+          28,
+          156
+        ]
+      ],
+      "precision_synthetic": 1.0,
+      "recall_synthetic": 0.8478260869565217
+    },
+    "Winston Churchill": {
+      "n": 286,
+      "threshold": 0.41431927302943794,
+      "balanced_accuracy": 1.0,
+      "f1_synthetic": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0,
+      "confusion_matrix_real_fake": [
+        [
+          158,
+          0
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "precision_synthetic": 1.0,
+      "recall_synthetic": 1.0
+    }
+  },
+  "test_speakers": [
+    "Alexandria Ocasio-Cortez",
+    "Bob Ross",
+    "Christopher Hitchens",
+    "JFK",
+    "Jerry Seinfeld",
+    "Louis Farrakhan",
+    "Lyndon Johnson",
+    "Orson Welles",
+    "Scarlett Johansson",
+    "The Notorious B.I.G.",
+    "Winston Churchill"
+  ],
+  "limitations": "Speaker-disjoint local partitions; source recording/session, TTS vendor, shared text and near-duplicate provenance are unavailable. Cross-speaker source leakage cannot be ruled out. Public-figure English web audio is not representative of arbitrary microphones/languages. Uncalibrated scores are not forensic proof. Upstream test is repurposed for this experiment and is no longer an independent benchmark.",
+  "seal_audit_caveat": "No historical digest of sealed/test.json was recorded. Existing logs and optimization-only caches support no prior test scoring; they are not an OS access audit. Preparation decoded all clips for PCM identity checks; shard extraction also read batches containing unselected audio, without extracting/scoring test features.",
+  "model_fits": 0,
+  "luminal_calls": 0,
+  "threshold_tuned_on_test": false,
+  "recordings_scored": 1800,
+  "predictions_sha256": "e6f9cdee1fcb72c1a1008cbf16ad43e4deb4b7690e0cfd1862398297db24561b"
+}
