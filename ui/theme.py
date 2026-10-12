@@ -172,6 +172,13 @@ audio { width:100%; }
 .empty p { color: var(--muted); max-width:30rem; margin:0 auto; line-height:1.6; }
 @media (max-width: 760px) { .exam-row { grid-template-columns: 1fr; } }
 
+/* Tables and flow diagrams */
+.tbl { overflow-x:auto; } table.cmp { width:100%; min-width:28rem; border-collapse:collapse; font-size:.86rem; }
+table.cmp th { text-align:left; font-size:.72rem; font-weight:500; text-transform:uppercase; letter-spacing:.06em; color: var(--muted); padding:.45rem .6rem; }
+table.cmp td { padding:.55rem .6rem; border-top:1px solid var(--border); font-variant-numeric: tabular-nums; }
+.flow { display:flex; flex-wrap:wrap; align-items:center; gap:.45rem; margin:.2rem 0 .4rem; }
+.flow .node { padding:.5rem .75rem; border-radius:8px; background: var(--surface2); border:1px solid var(--border); font-size:.84rem; }
+.flow .arrow { color: var(--muted); }
 /* How it works */
 .prose { max-width: 44rem; } .prose h3 { font-size:1rem; font-weight:600; margin:1.6rem 0 .4rem; }
 .prose p, .prose li { color: var(--muted); line-height:1.65; font-size:.92rem; }

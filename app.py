@@ -6,10 +6,8 @@ import html
 import streamlit as st
 
 from src.audio import AudioDecodeError, decode_audio
-from ui import explain, theme, viz
-from ui.detector import checkpoint_label, headline, model_html, result_html, run_detector
-from ui.experiments import PATH, load as load_experiments
-from ui.lab import render_evolution, render_lab
+from ui import explain, pages, reporting, theme, viz
+from ui.detector import _model_path, checkpoint_label, headline, model_html, result_html, run_detector
 
 st.set_page_config(page_title="EchoProof · Check a voice clip", page_icon="🎧", layout="wide")
 theme.inject()
@@ -47,26 +45,22 @@ def next_steps_html(tone: str) -> str:
             f"then report it. {links}</div>")
 
 
-def model_card() -> None:
-    try:
-        from src.model import load_model
-        from ui.detector import _model_path
-        art = load_model(_model_path())
-        clf = type(art["pipeline"].named_steps.get("classifier")).__name__
-        rows = [("Version", art.get("model_version", "—")), ("Checkpoint", checkpoint_label()),
-                ("Decision threshold", f'{art["threshold"]:.3f}'), ("Classifier", clf),
-                ("Measurements per chunk", len((art.get("feature_settings") or {}).get("feature_names") or []) or "—")]
-    except Exception as exc:  # missing or incompatible checkpoint
-        rows = [("Checkpoint", checkpoint_label()), ("Status", f"could not be loaded ({type(exc).__name__})")]
-    kv = "".join(f"<dt>{html.escape(str(k))}</dt><dd>{html.escape(str(v))}</dd>" for k, v in rows)
-    with st.container(key="card_model"):
-        theme.card_title("Model in use", "The checkpoint every check on this computer runs through. A new model "
-                         "is only used once someone deliberately points the app at it.")
-        st.markdown(f'<dl class="kv">{kv}</dl><p class="note">The saved baseline stays the default until a new '
-                    "checkpoint is intentionally selected.</p>", unsafe_allow_html=True)
+@st.cache_data(show_spinner=False, max_entries=4)
+def load_evidence(sig: tuple):
+    """All saved reports; the key covers every source file, the export and the selected checkpoint."""
+    return reporting.evidence()
 
 
-tab_check, tab_how, tab_model = st.tabs(["Check a clip", "How it works", "Model"])
+@st.cache_data(show_spinner=False, max_entries=4)
+def load_active(sig: tuple):
+    return reporting.active_model()
+
+
+_sig = reporting.signature(_model_path())
+evidence, active = load_evidence(_sig), load_active(_sig)
+
+tab_check, tab_model, tab_learned, tab_lab, tab_how = st.tabs(
+    ["Check a clip", "Model", "How EchoProof learned", "Agent Lab", "How it works"])
 
 with tab_check:
     theme.page_heading("Check a voice clip", "Got a voice note or call recording that doesn't feel right? See "
@@ -74,7 +68,7 @@ with tab_check:
     left, right = st.columns([5, 6], gap="large")
     with left:
         with st.container(key="card_upload"):
-            theme.card_title("Your clip", "WAV, FLAC or OGG, up to 25 MB and 120 seconds. Analyzed in memory on "
+            theme.card_title("Your clip", "WAV, FLAC or OGG, up to 25 MiB and 120 seconds. Analyzed in memory on "
                              "this computer and never uploaded.")
             up = st.file_uploader("Upload audio", type=["wav", "flac", "ogg"], label_visibility="collapsed")
 
@@ -128,15 +122,15 @@ with tab_check:
         with st.expander("Details: chunk scores, waveform and spectrogram"):
             if res["status"] == "ok" and res["segments"]:
                 theme.card_title("Score per 4-second chunk", SEG_TIP)
-                st.plotly_chart(viz.segments_fig(res["segments"], res["threshold"]), use_container_width=True,
+                st.plotly_chart(viz.segments_fig(res["segments"], res["threshold"]), width="stretch",
                                 config={"displayModeBar": False})
             a, b = st.columns([5, 7], gap="medium")
             with a:
                 theme.card_title("Waveform", WAVE_TIP)
-                st.plotly_chart(wave, use_container_width=True, config={"displayModeBar": False})
+                st.plotly_chart(wave, width="stretch", config={"displayModeBar": False})
             with b:
                 theme.card_title("Spectrogram", SPEC_TIP)
-                st.plotly_chart(spec, use_container_width=True, config={"displayModeBar": False})
+                st.plotly_chart(spec, width="stretch", config={"displayModeBar": False})
 
 with tab_how:
     theme.page_heading("How EchoProof works", "What happens to your clip, what the result means, and where it can be wrong.")
@@ -156,20 +150,14 @@ with tab_how:
 <h3>If something feels wrong</h3>
 <p>Call the person back on a number you already know, ask something only they would know, and never send gift cards, wire transfers, crypto or cash because of a phone call.</p>
 </div>""", unsafe_allow_html=True)
-
-
-@st.cache_data(show_spinner=False)
-def _load(mtime: float):
-    return load_experiments()
+    pages.render_architecture(evidence)
 
 
 with tab_model:
-    theme.page_heading("The model", "Which model is running, how it was trained and tested, and the experiments "
-                       "behind it. Every number here comes from saved reports.")
-    model_card()
-    experiments = _load(PATH.stat().st_mtime if PATH.is_file() else 0.0)
-    sub_runs, sub_history = st.tabs(["Agent experiments", "Results over time"])
-    with sub_runs:
-        render_lab(experiments)
-    with sub_history:
-        render_evolution(experiments)
+    pages.render_model(evidence, active)
+
+with tab_learned:
+    pages.render_evolution(evidence)
+
+with tab_lab:
+    pages.render_agents(evidence)

@@ -20,8 +20,9 @@ SCORE_TIP = ("A number from 0 to 1 that the model produces. Near 0: the audio re
              "trained on. Near 1: it resembles AI-generated speech. It is not a percent chance.")
 THRESHOLD_TIP = ("The cut-off the team picked using practice data. At or above it the clip is labeled AI-like, "
                  "below it human-like. Scores very close to it are called can't tell.")
-WHY_TIP = ("The measured properties of this recording that moved the model's score the most. They describe the "
-           "recording, not the person, and they are not proof.")
+WHY_TIP = ("Descriptive linear contributions: how far each measurement of this recording sits from the training "
+           "average, weighted by the model. They describe the recording, not the person. They are not forensic causes "
+           "and not an exact breakdown of the duration-averaged score.")
 CHECKPOINT_TIP = ("The checkpoint is the saved, trained model file. The sha256 is its fingerprint: if it matches "
                   "the team's report, this app is running exactly that model.")
 

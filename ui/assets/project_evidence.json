@@ -1,0 +1,1739 @@
+{
+ "schema_version": 1,
+ "generated_at": "2026-10-11T23:55:47.365148+00:00",
+ "model_identities": {
+  "final_model_sha256": "e7263a3a4a1c789ffcd3765f1fb12ec2d41f0334057f57950c75a1c3d0a448bc",
+  "baseline_sha256": "eb177b5824fddf3dc351c06f86de40b49d8385694ce36746031a6e4540298bc1"
+ },
+ "note": "Aggregate evidence only. It does not establish which checkpoint is active on any machine.",
+ "sections": {
+  "original": {
+   "status": "ok",
+   "provenance": "local",
+   "dataset": "Gary Stafford deepfake-audio-detection",
+   "revision": "fcf5344bb7f82b54b6b932291326d29750ef1e82",
+   "rows": {
+    "baseline": {
+     "validation": {
+      "balanced_accuracy": 0.9510954616588418,
+      "f1_synthetic": 0.9444444444444444,
+      "roc_auc": 0.985980699008868,
+      "accuracy": 0.952,
+      "threshold": 0.33173498266474855,
+      "n": 250,
+      "confusion": [
+       [
+        136,
+        6
+       ],
+       [
+        6,
+        102
+       ]
+      ],
+      "derived_accuracy": 0.952
+     },
+     "test": {
+      "balanced_accuracy": 0.96635016359787,
+      "f1_synthetic": 0.9596412556053812,
+      "roc_auc": 0.9955090780778855,
+      "accuracy": 0.9642857142857143,
+      "threshold": 0.33173498266474855,
+      "n": 252,
+      "confusion": [
+       [
+        136,
+        7
+       ],
+       [
+        2,
+        107
+       ]
+      ],
+      "derived_accuracy": 0.9642857142857143
+     },
+     "sha256": "eb177b5824fddf3dc351c06f86de40b49d8385694ce36746031a6e4540298bc1"
+    },
+    "optimized": {
+     "validation": {
+      "balanced_accuracy": 0.9568335941575378,
+      "f1_synthetic": 0.9497716894977168,
+      "roc_auc": 0.9897626499739176,
+      "accuracy": 0.956,
+      "threshold": 0.39278538241090233,
+      "n": 250,
+      "confusion": [
+       [
+        135,
+        7
+       ],
+       [
+        4,
+        104
+       ]
+      ],
+      "derived_accuracy": 0.956
+     },
+     "test": {
+      "balanced_accuracy": 0.9641688586642715,
+      "f1_synthetic": 0.958904109589041,
+      "roc_auc": 0.9937127093090395,
+      "accuracy": 0.9642857142857143,
+      "threshold": 0.39278538241090233,
+      "n": 252,
+      "confusion": [
+       [
+        138,
+        5
+       ],
+       [
+        4,
+        105
+       ]
+      ],
+      "derived_accuracy": 0.9642857142857143
+     },
+     "sha256": "5f19ce37e01ecdace2ebad6193b6296b1314cb7c5dbb12abea2015174fb68ecf",
+     "config": {
+      "classifier": "logistic_regression",
+      "feature_set": "all",
+      "parameters": {
+       "C": 0.1,
+       "class_weight": null
+      },
+      "role": "classifier"
+     },
+     "provenance": {
+      "run_id": "ba52f0c8dafd4a1880b60d5c557ec35e",
+      "round": 2,
+      "role": "classifier"
+     }
+    }
+   },
+   "n_train": 1148,
+   "threshold_policy": "Validation-selected threshold, frozen before the one-time test.",
+   "sources": [
+    {
+     "path": "runs/baseline/validation_metrics.json",
+     "sha256": "bac54c8cbc9af990b7c85cd8447abf2581fe7c7878d70871be3bb39cd52aae28"
+    },
+    {
+     "path": "runs/baseline/test_metrics.json",
+     "sha256": "558694d43212ca0b2f4dd2279e098b568d57ca0076a3518f0144ea30dbf7e5c6"
+    },
+    {
+     "path": "runs/optimized-v1-ba52f0c8dafd4a1880b60d5c557ec35e/validation_metrics.json",
+     "sha256": "bfe7c73ac54fe8abcfd8aa5b595af7244bbd0d807759ec063192eec33b4347d9"
+    },
+    {
+     "path": "runs/optimized-v1-ba52f0c8dafd4a1880b60d5c557ec35e/test_metrics.json",
+     "sha256": "dfff1fa4f03252f27b1dee67071bf2deb6e023d30f85a6e8c1e39b59543a173c"
+    },
+    {
+     "path": "runs/optimized-v1-ba52f0c8dafd4a1880b60d5c557ec35e/checkpoint_metadata.json",
+     "sha256": "43a64159d96e73ec2741c61b884c978d731cbdf2f8815ebfb9ba35ec49d7e145"
+    }
+   ]
+  },
+  "expansion": {
+   "status": "ok",
+   "provenance": "local",
+   "dataset": "In-the-Wild (SpeechAntiSpoofingBenchmarks/InTheWild)",
+   "counts": {
+    "selected": {
+     "n": 12000,
+     "genuine": 6160,
+     "synthetic": 5840,
+     "speakers": 54
+    },
+    "train": {
+     "n": 8400,
+     "genuine": 4292,
+     "synthetic": 4108,
+     "speakers": 35
+    },
+    "validation": {
+     "n": 1800,
+     "genuine": 968,
+     "synthetic": 832,
+     "speakers": 8
+    },
+    "test": {
+     "n": 1800,
+     "genuine": 900,
+     "synthetic": 900,
+     "speakers": 11
+    },
+    "revision": "f36fbe7e4e009e444a4985c66d76ab1d9439f901",
+    "repo": "SpeechAntiSpoofingBenchmarks/InTheWild",
+    "limitations": "Speaker-disjoint local partitions; source recording/session, TTS vendor, shared text and near-duplicate provenance are unavailable. Cross-speaker source leakage cannot be ruled out. Public-figure English web audio is not representative of arbitrary microphones/languages. Uncalibrated scores are not forensic proof. Upstream test is repurposed for this experiment and is no longer an independent benchmark."
+   },
+   "comparison": {
+    "partition": "validation",
+    "baseline": {
+     "balanced_accuracy": 0.4645085028607756,
+     "f1_synthetic": 0.2041522491349481,
+     "false_positive_rate": 0.2128099173553719,
+     "false_negative_rate": 0.8581730769230769,
+     "threshold": 0.33173498266474855,
+     "n": 1800,
+     "confusion": [
+      [
+       762,
+       206
+      ],
+      [
+       714,
+       118
+      ]
+     ],
+     "derived_accuracy": 0.4888888888888889
+    },
+    "candidate": {
+     "balanced_accuracy": 0.9292057374443738,
+     "f1_synthetic": 0.9238390092879257,
+     "false_positive_rate": 0.038223140495867766,
+     "false_negative_rate": 0.10336538461538461,
+     "threshold": 0.41431927302943794,
+     "n": 1800,
+     "confusion": [
+      [
+       931,
+       37
+      ],
+      [
+       86,
+       746
+      ]
+     ],
+     "derived_accuracy": 0.9316666666666666
+    },
+    "baseline_sha256": "eb177b5824fddf3dc351c06f86de40b49d8385694ce36746031a6e4540298bc1",
+    "luminal_calls": 0,
+    "original_training_included": false,
+    "training_clips": 8400,
+    "limitations": "Speaker-disjoint local partitions; source recording/session, TTS vendor, shared text and near-duplicate provenance are unavailable. Cross-speaker source leakage cannot be ruled out. Public-figure English web audio is not representative of arbitrary microphones/languages. Uncalibrated scores are not forensic proof. Upstream test is repurposed for this experiment and is no longer an independent benchmark."
+   },
+   "diagnostic": {
+    "baseline_score": 0.9988675517388323,
+    "candidate_score": 0.09054169967363336,
+    "candidate_sha256": "e7263a3a4a1c789ffcd3765f1fb12ec2d41f0334057f57950c75a1c3d0a448bc",
+    "label_source": "previous audit/user attestation"
+   },
+   "warnings": [],
+   "sources": [
+    {
+     "path": "data/inthewild/experiment-12000-v1/preparation.json",
+     "sha256": "ad99ec0f47e612e5f3fb7d9a02fb9b1e68660458ee20a16bce4096e1d48672b4"
+    },
+    {
+     "path": "data/inthewild/experiment-12000-v1/comparison.json",
+     "sha256": "9db7e7d2a8fc339190a7fac623eed48963b610407d8851f9ce0c69533b6e0b2b"
+    },
+    {
+     "path": "data/inthewild/experiment-12000-v1/verification.json",
+     "sha256": "60d5677e8620b1dda5096cd0bd1dc1079a05c90f685fa45ca281258953d7c0d8"
+    }
+   ]
+  },
+  "final": {
+   "status": "ok",
+   "provenance": "local",
+   "dataset": "In-the-Wild (SpeechAntiSpoofingBenchmarks/InTheWild)",
+   "partition": "local speaker-disjoint held-out test",
+   "model_sha256": "e7263a3a4a1c789ffcd3765f1fb12ec2d41f0334057f57950c75a1c3d0a448bc",
+   "baseline_sha256": "eb177b5824fddf3dc351c06f86de40b49d8385694ce36746031a6e4540298bc1",
+   "threshold": 0.41431927302943794,
+   "feature_settings": {
+    "sample_rate": 16000,
+    "window_seconds": 4.0,
+    "padding": "zero",
+    "n_fft": 512,
+    "hop_length": 160,
+    "n_mels": 64,
+    "n_mfcc": 20,
+    "feature_names": [
+     "mfcc_00_mean",
+     "mfcc_01_mean",
+     "mfcc_02_mean",
+     "mfcc_03_mean",
+     "mfcc_04_mean",
+     "mfcc_05_mean",
+     "mfcc_06_mean",
+     "mfcc_07_mean",
+     "mfcc_08_mean",
+     "mfcc_09_mean",
+     "mfcc_10_mean",
+     "mfcc_11_mean",
+     "mfcc_12_mean",
+     "mfcc_13_mean",
+     "mfcc_14_mean",
+     "mfcc_15_mean",
+     "mfcc_16_mean",
+     "mfcc_17_mean",
+     "mfcc_18_mean",
+     "mfcc_19_mean",
+     "mfcc_00_std",
+     "mfcc_01_std",
+     "mfcc_02_std",
+     "mfcc_03_std",
+     "mfcc_04_std",
+     "mfcc_05_std",
+     "mfcc_06_std",
+     "mfcc_07_std",
+     "mfcc_08_std",
+     "mfcc_09_std",
+     "mfcc_10_std",
+     "mfcc_11_std",
+     "mfcc_12_std",
+     "mfcc_13_std",
+     "mfcc_14_std",
+     "mfcc_15_std",
+     "mfcc_16_std",
+     "mfcc_17_std",
+     "mfcc_18_std",
+     "mfcc_19_std",
+     "centroid_mean",
+     "centroid_std",
+     "bandwidth_mean",
+     "bandwidth_std",
+     "rolloff_mean",
+     "rolloff_std",
+     "flatness_mean",
+     "flatness_std",
+     "zcr_mean",
+     "zcr_std",
+     "rms_mean",
+     "rms_std"
+    ],
+    "aggregation": "duration_weighted_mean_segment_score",
+    "feature_version": 1
+   },
+   "repo": "SpeechAntiSpoofingBenchmarks/InTheWild",
+   "revision": "f36fbe7e4e009e444a4985c66d76ab1d9439f901",
+   "model_version": "inthewild-v1",
+   "metrics": {
+    "balanced_accuracy": 0.935,
+    "f1_synthetic": 0.9362397820163487,
+    "precision_synthetic": 0.9187165775401069,
+    "recall_synthetic": 0.9544444444444444,
+    "false_positive_rate": 0.08444444444444445,
+    "false_negative_rate": 0.04555555555555556,
+    "threshold": 0.41431927302943794,
+    "n": 1800,
+    "confusion": [
+     [
+      824,
+      76
+     ],
+     [
+      41,
+      859
+     ]
+    ],
+    "derived_accuracy": 0.935
+   },
+   "validation": {
+    "balanced_accuracy": 0.9292057374443738,
+    "f1_synthetic": 0.9238390092879257,
+    "false_positive_rate": 0.038223140495867766,
+    "false_negative_rate": 0.10336538461538461,
+    "threshold": 0.41431927302943794,
+    "n": 1800,
+    "confusion": [
+     [
+      931,
+      37
+     ],
+     [
+      86,
+      746
+     ]
+    ],
+    "derived_accuracy": 0.9316666666666666
+   },
+   "speakers": 11,
+   "classes": {
+    "0": 900,
+    "1": 900
+   },
+   "speakers_disjoint": true,
+   "decision_policy": "Binary score >= frozen validation threshold; UI abstention band is excluded from these metrics.",
+   "luminal_calls": 0,
+   "model_fits": 0,
+   "warnings": [],
+   "sources": [
+    {
+     "path": "runs/inthewild-final-20261011/freeze.json",
+     "sha256": "dcf9f6268bc65445ce13aa485ad89f7cbad25af7809db1049ae1056800e0e578"
+    },
+    {
+     "path": "runs/inthewild-final-20261011/test_metrics.json",
+     "sha256": "937cdff633ec6a1e0b738b9e777ec73334ffe2aaf3ef3b120eeece0a38256f70"
+    },
+    {
+     "path": "runs/inthewild-final-20261011/test_preflight.json",
+     "sha256": "77eb417e260130cf0601b15c002dc42dabceea5775abd5886761d54fb268018a"
+    }
+   ]
+  },
+  "sessions": {
+   "status": "ok",
+   "provenance": "local",
+   "sessions": [
+    {
+     "run_id": "a8186291ad584d3597d59f677f2ef148",
+     "dataset": "Gary Stafford deepfake-audio-detection",
+     "protocol": "Fixed validation split (250 clips)",
+     "kind": "dry_run",
+     "format": "v1",
+     "calls": 0,
+     "fits": 3,
+     "rounds": 1,
+     "status": "ok",
+     "stop_reason": "round_limit",
+     "finished": true,
+     "limits": null,
+     "baseline": {
+      "balanced_accuracy": 0.9510954616588418,
+      "f1_synthetic": 0.9444444444444444,
+      "roc_auc": 0.985980699008868,
+      "accuracy": 0.952,
+      "threshold": 0.33173498266474855,
+      "n": 250,
+      "confusion": [
+       [
+        136,
+        6
+       ],
+       [
+        6,
+        102
+       ]
+      ],
+      "derived_accuracy": 0.952
+     },
+     "incumbent_ba": 0.9568335941575378,
+     "selected": {
+      "classifier": "logistic_regression",
+      "feature_set": "all",
+      "parameters": {
+       "C": 0.1,
+       "class_weight": null
+      },
+      "role": "classifier"
+     },
+     "proposals": [
+      {
+       "round": 1,
+       "role": "features",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "mfcc",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 1.0,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9303599374021909,
+        "f1_synthetic": 0.9230769230769231,
+        "roc_auc": 0.9786776212832552,
+        "accuracy": 0.936,
+        "threshold": 0.5220849514007568,
+        "n": 250,
+        "confusion": [
+         [
+          138,
+          4
+         ],
+         [
+          12,
+          96
+         ]
+        ],
+        "derived_accuracy": 0.936
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 1,
+       "role": "classifier",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "all",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 0.1,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "accepted",
+       "reason": "validation_balanced_accuracy_improved",
+       "metrics": {
+        "balanced_accuracy": 0.9568335941575378,
+        "f1_synthetic": 0.9497716894977168,
+        "roc_auc": 0.9897626499739176,
+        "accuracy": 0.956,
+        "threshold": 0.3927798670178178,
+        "n": 250,
+        "confusion": [
+         [
+          135,
+          7
+         ],
+         [
+          4,
+          104
+         ]
+        ],
+        "derived_accuracy": 0.956
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 1,
+       "role": "robustness",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 0.1,
+         "class_weight": "balanced"
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.946661450182577,
+        "f1_synthetic": 0.9423076923076923,
+        "roc_auc": 0.9783515910276473,
+        "accuracy": 0.952,
+        "threshold": 0.6187282196082211,
+        "n": 250,
+        "confusion": [
+         [
+          140,
+          2
+         ],
+         [
+          10,
+          98
+         ]
+        ],
+        "derived_accuracy": 0.952
+       },
+       "folds": null,
+       "objective": null
+      }
+     ],
+     "failures": 0,
+     "source": "runs/experiments.jsonl"
+    },
+    {
+     "run_id": "1e3352e537924cddbcaf82a381bbde7a",
+     "dataset": "Gary Stafford deepfake-audio-detection",
+     "protocol": "Fixed validation split (250 clips)",
+     "kind": "dry_run",
+     "format": "v1",
+     "calls": 0,
+     "fits": 9,
+     "rounds": 3,
+     "status": "ok",
+     "stop_reason": "round_limit",
+     "finished": true,
+     "limits": null,
+     "baseline": {
+      "balanced_accuracy": 0.9510954616588418,
+      "f1_synthetic": 0.9444444444444444,
+      "roc_auc": 0.985980699008868,
+      "accuracy": 0.952,
+      "threshold": 0.33173498266474855,
+      "n": 250,
+      "confusion": [
+       [
+        136,
+        6
+       ],
+       [
+        6,
+        102
+       ]
+      ],
+      "derived_accuracy": 0.952
+     },
+     "incumbent_ba": 0.9568335941575378,
+     "selected": {
+      "classifier": "logistic_regression",
+      "feature_set": "all",
+      "parameters": {
+       "C": 0.1,
+       "class_weight": null
+      },
+      "role": "classifier"
+     },
+     "proposals": [
+      {
+       "round": 1,
+       "role": "features",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "mfcc",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 1.0,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9303599374021909,
+        "f1_synthetic": 0.9230769230769231,
+        "roc_auc": 0.9786776212832552,
+        "accuracy": 0.936,
+        "threshold": 0.5220849514007568,
+        "n": 250,
+        "confusion": [
+         [
+          138,
+          4
+         ],
+         [
+          12,
+          96
+         ]
+        ],
+        "derived_accuracy": 0.936
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 1,
+       "role": "classifier",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "all",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 0.1,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "accepted",
+       "reason": "validation_balanced_accuracy_improved",
+       "metrics": {
+        "balanced_accuracy": 0.9568335941575378,
+        "f1_synthetic": 0.9497716894977168,
+        "roc_auc": 0.9897626499739176,
+        "accuracy": 0.956,
+        "threshold": 0.3927798670178178,
+        "n": 250,
+        "confusion": [
+         [
+          135,
+          7
+         ],
+         [
+          4,
+          104
+         ]
+        ],
+        "derived_accuracy": 0.956
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 1,
+       "role": "robustness",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 0.1,
+         "class_weight": "balanced"
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.946661450182577,
+        "f1_synthetic": 0.9423076923076923,
+        "roc_auc": 0.9783515910276473,
+        "accuracy": 0.952,
+        "threshold": 0.6187282196082211,
+        "n": 250,
+        "confusion": [
+         [
+          140,
+          2
+         ],
+         [
+          10,
+          98
+         ]
+        ],
+        "derived_accuracy": 0.952
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 2,
+       "role": "features",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "spectral",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 1.0,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.7120500782472613,
+        "f1_synthetic": 0.7111111111111111,
+        "roc_auc": 0.7775821596244131,
+        "accuracy": 0.688,
+        "threshold": 0.46260403096675873,
+        "n": 250,
+        "confusion": [
+         [
+          76,
+          66
+         ],
+         [
+          12,
+          96
+         ]
+        ],
+        "derived_accuracy": 0.688
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 2,
+       "role": "classifier",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "all",
+        "classifier": "random_forest",
+        "parameters": {
+         "class_weight": null,
+         "max_depth": 6,
+         "max_features": "sqrt",
+         "min_samples_leaf": 3,
+         "n_estimators": 100
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9299687010954616,
+        "f1_synthetic": 0.918918918918919,
+        "roc_auc": 0.9820683359415754,
+        "accuracy": 0.928,
+        "threshold": 0.5592888140726279,
+        "n": 250,
+        "confusion": [
+         [
+          130,
+          12
+         ],
+         [
+          6,
+          102
+         ]
+        ],
+        "derived_accuracy": 0.928
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 2,
+       "role": "robustness",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 1.0,
+         "class_weight": "balanced"
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9220135628586332,
+        "f1_synthetic": 0.9116279069767442,
+        "roc_auc": 0.9737871674491394,
+        "accuracy": 0.924,
+        "threshold": 0.5817183250171456,
+        "n": 250,
+        "confusion": [
+         [
+          133,
+          9
+         ],
+         [
+          10,
+          98
+         ]
+        ],
+        "derived_accuracy": 0.924
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 3,
+       "role": "features",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 1.0,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9220135628586332,
+        "f1_synthetic": 0.9116279069767442,
+        "roc_auc": 0.9730699008868023,
+        "accuracy": 0.924,
+        "threshold": 0.5476234004976981,
+        "n": 250,
+        "confusion": [
+         [
+          133,
+          9
+         ],
+         [
+          10,
+          98
+         ]
+        ],
+        "derived_accuracy": 0.924
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 3,
+       "role": "classifier",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "all",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 10.0,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9360980699008868,
+        "f1_synthetic": 0.9289099526066351,
+        "roc_auc": 0.9818075117370892,
+        "accuracy": 0.94,
+        "threshold": 0.3638501894629884,
+        "n": 250,
+        "confusion": [
+         [
+          137,
+          5
+         ],
+         [
+          10,
+          98
+         ]
+        ],
+        "derived_accuracy": 0.94
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 3,
+       "role": "robustness",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 10.0,
+         "class_weight": "balanced"
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9177751695357329,
+        "f1_synthetic": 0.91,
+        "roc_auc": 0.9683098591549295,
+        "accuracy": 0.928,
+        "threshold": 0.8028483688831329,
+        "n": 250,
+        "confusion": [
+         [
+          141,
+          1
+         ],
+         [
+          17,
+          91
+         ]
+        ],
+        "derived_accuracy": 0.928
+       },
+       "folds": null,
+       "objective": null
+      }
+     ],
+     "failures": 0,
+     "source": "runs/experiments.jsonl"
+    },
+    {
+     "run_id": "5aa93f04c4f645fd9312f105c66d35f8",
+     "dataset": "Gary Stafford deepfake-audio-detection",
+     "protocol": "Fixed validation split (250 clips)",
+     "kind": "config_failure",
+     "format": "v1",
+     "calls": 0,
+     "fits": 0,
+     "rounds": 0,
+     "status": "failed",
+     "stop_reason": "Configure LUMINAL_API_KEY, BASE_URL, COMPLETION_PATH, MODEL_ID, API_FORMAT, and TOKEN_FIELD from verified provider docs/config.",
+     "finished": true,
+     "limits": {
+      "agents_per_round": 3,
+      "experiments": 12,
+      "llm_calls": 20,
+      "rounds": 1,
+      "run_timeout_s": 90.0,
+      "train_timeout_s": 60.0
+     },
+     "baseline": {
+      "balanced_accuracy": 0.9510954616588418,
+      "f1_synthetic": 0.9444444444444444,
+      "roc_auc": 0.985980699008868,
+      "accuracy": 0.952,
+      "threshold": 0.33173498266474855,
+      "n": 250,
+      "confusion": [
+       [
+        136,
+        6
+       ],
+       [
+        6,
+        102
+       ]
+      ],
+      "derived_accuracy": 0.952
+     },
+     "incumbent_ba": 0.9510954616588418,
+     "selected": null,
+     "proposals": [],
+     "failures": 0,
+     "source": "runs/experiments.jsonl"
+    },
+    {
+     "run_id": "693c8ee5c3dd4077be05c4275bc1b997",
+     "dataset": "Gary Stafford deepfake-audio-detection",
+     "protocol": "Fixed validation split (250 clips)",
+     "kind": "dry_run",
+     "format": "v1",
+     "calls": 0,
+     "fits": 9,
+     "rounds": 3,
+     "status": "ok",
+     "stop_reason": "round_limit",
+     "finished": true,
+     "limits": {
+      "agents_per_round": 3,
+      "experiments": 12,
+      "llm_calls": 20,
+      "rounds": 3,
+      "run_timeout_s": 600.0,
+      "train_timeout_s": 120.0
+     },
+     "baseline": {
+      "balanced_accuracy": 0.9510954616588418,
+      "f1_synthetic": 0.9444444444444444,
+      "roc_auc": 0.985980699008868,
+      "accuracy": 0.952,
+      "threshold": 0.33173498266474855,
+      "n": 250,
+      "confusion": [
+       [
+        136,
+        6
+       ],
+       [
+        6,
+        102
+       ]
+      ],
+      "derived_accuracy": 0.952
+     },
+     "incumbent_ba": 0.9568335941575378,
+     "selected": {
+      "classifier": "logistic_regression",
+      "feature_set": "all",
+      "parameters": {
+       "C": 0.1,
+       "class_weight": null
+      },
+      "role": "classifier"
+     },
+     "proposals": [
+      {
+       "round": 1,
+       "role": "features",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "mfcc",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 1.0,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9303599374021909,
+        "f1_synthetic": 0.9230769230769231,
+        "roc_auc": 0.9786776212832552,
+        "accuracy": 0.936,
+        "threshold": 0.5220351219177246,
+        "n": 250,
+        "confusion": [
+         [
+          138,
+          4
+         ],
+         [
+          12,
+          96
+         ]
+        ],
+        "derived_accuracy": 0.936
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 1,
+       "role": "classifier",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "all",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 0.1,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "accepted",
+       "reason": "validation_balanced_accuracy_improved",
+       "metrics": {
+        "balanced_accuracy": 0.9568335941575378,
+        "f1_synthetic": 0.9497716894977168,
+        "roc_auc": 0.9897626499739176,
+        "accuracy": 0.956,
+        "threshold": 0.39278538241090233,
+        "n": 250,
+        "confusion": [
+         [
+          135,
+          7
+         ],
+         [
+          4,
+          104
+         ]
+        ],
+        "derived_accuracy": 0.956
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 1,
+       "role": "robustness",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 0.1,
+         "class_weight": "balanced"
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.946661450182577,
+        "f1_synthetic": 0.9423076923076923,
+        "roc_auc": 0.9783515910276473,
+        "accuracy": 0.952,
+        "threshold": 0.6187297109896179,
+        "n": 250,
+        "confusion": [
+         [
+          140,
+          2
+         ],
+         [
+          10,
+          98
+         ]
+        ],
+        "derived_accuracy": 0.952
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 2,
+       "role": "features",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "spectral",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 1.0,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.7120500782472613,
+        "f1_synthetic": 0.7111111111111111,
+        "roc_auc": 0.7775821596244131,
+        "accuracy": 0.688,
+        "threshold": 0.4625787287950516,
+        "n": 250,
+        "confusion": [
+         [
+          76,
+          66
+         ],
+         [
+          12,
+          96
+         ]
+        ],
+        "derived_accuracy": 0.688
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 2,
+       "role": "classifier",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "all",
+        "classifier": "random_forest",
+        "parameters": {
+         "class_weight": null,
+         "max_depth": 6,
+         "max_features": "sqrt",
+         "min_samples_leaf": 3,
+         "n_estimators": 100
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9299687010954616,
+        "f1_synthetic": 0.918918918918919,
+        "roc_auc": 0.9820683359415754,
+        "accuracy": 0.928,
+        "threshold": 0.5592888140726279,
+        "n": 250,
+        "confusion": [
+         [
+          130,
+          12
+         ],
+         [
+          6,
+          102
+         ]
+        ],
+        "derived_accuracy": 0.928
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 2,
+       "role": "robustness",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 1.0,
+         "class_weight": "balanced"
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9199921752738655,
+        "f1_synthetic": 0.9117647058823529,
+        "roc_auc": 0.9737219613980178,
+        "accuracy": 0.928,
+        "threshold": 0.7112399865260869,
+        "n": 250,
+        "confusion": [
+         [
+          139,
+          3
+         ],
+         [
+          15,
+          93
+         ]
+        ],
+        "derived_accuracy": 0.928
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 3,
+       "role": "features",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 1.0,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9220135628586332,
+        "f1_synthetic": 0.9116279069767442,
+        "roc_auc": 0.9730699008868023,
+        "accuracy": 0.924,
+        "threshold": 0.5476206233943692,
+        "n": 250,
+        "confusion": [
+         [
+          133,
+          9
+         ],
+         [
+          10,
+          98
+         ]
+        ],
+        "derived_accuracy": 0.924
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 3,
+       "role": "classifier",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "all",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 10.0,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9360980699008868,
+        "f1_synthetic": 0.9289099526066351,
+        "roc_auc": 0.9816118935837246,
+        "accuracy": 0.94,
+        "threshold": 0.36284775773930633,
+        "n": 250,
+        "confusion": [
+         [
+          137,
+          5
+         ],
+         [
+          10,
+          98
+         ]
+        ],
+        "derived_accuracy": 0.94
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 3,
+       "role": "robustness",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 10.0,
+         "class_weight": "balanced"
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9164710485133021,
+        "f1_synthetic": 0.9073170731707317,
+        "roc_auc": 0.9683750652060511,
+        "accuracy": 0.924,
+        "threshold": 0.7492284774780273,
+        "n": 250,
+        "confusion": [
+         [
+          138,
+          4
+         ],
+         [
+          15,
+          93
+         ]
+        ],
+        "derived_accuracy": 0.924
+       },
+       "folds": null,
+       "objective": null
+      }
+     ],
+     "failures": 0,
+     "source": "runs/experiments.jsonl"
+    },
+    {
+     "run_id": "ba52f0c8dafd4a1880b60d5c557ec35e",
+     "dataset": "Gary Stafford deepfake-audio-detection",
+     "protocol": "Fixed validation split (250 clips)",
+     "kind": "live",
+     "format": "v1",
+     "calls": 9,
+     "fits": 8,
+     "rounds": 3,
+     "status": "partial_failure",
+     "stop_reason": "round_limit",
+     "finished": true,
+     "limits": {
+      "agents_per_round": 3,
+      "experiments": 12,
+      "llm_calls": 20,
+      "rounds": 3,
+      "run_timeout_s": 600.0,
+      "train_timeout_s": 120.0
+     },
+     "baseline": {
+      "balanced_accuracy": 0.9510954616588418,
+      "f1_synthetic": 0.9444444444444444,
+      "roc_auc": 0.985980699008868,
+      "accuracy": 0.952,
+      "threshold": 0.33173498266474855,
+      "n": 250,
+      "confusion": [
+       [
+        136,
+        6
+       ],
+       [
+        6,
+        102
+       ]
+      ],
+      "derived_accuracy": 0.952
+     },
+     "incumbent_ba": 0.9568335941575378,
+     "selected": {
+      "classifier": "logistic_regression",
+      "feature_set": "all",
+      "parameters": {
+       "C": 0.1,
+       "class_weight": null
+      },
+      "role": "classifier"
+     },
+     "proposals": [
+      {
+       "round": 1,
+       "role": "features",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "mfcc",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 1,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9303599374021909,
+        "f1_synthetic": 0.9230769230769231,
+        "roc_auc": 0.9786776212832552,
+        "accuracy": 0.936,
+        "threshold": 0.5220351219177246,
+        "n": 250,
+        "confusion": [
+         [
+          138,
+          4
+         ],
+         [
+          12,
+          96
+         ]
+        ],
+        "derived_accuracy": 0.936
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 1,
+       "role": "classifier",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "all",
+        "classifier": "random_forest",
+        "parameters": {
+         "class_weight": "balanced",
+         "max_depth": 6,
+         "max_features": "sqrt",
+         "min_samples_leaf": 1,
+         "n_estimators": 100
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.920905059989567,
+        "f1_synthetic": 0.9107981220657277,
+        "roc_auc": 0.9760041731872717,
+        "accuracy": 0.924,
+        "threshold": 0.6357125792339775,
+        "n": 250,
+        "confusion": [
+         [
+          134,
+          8
+         ],
+         [
+          11,
+          97
+         ]
+        ],
+        "derived_accuracy": 0.924
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 1,
+       "role": "robustness",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 0.1,
+         "class_weight": "balanced"
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.946661450182577,
+        "f1_synthetic": 0.9423076923076923,
+        "roc_auc": 0.9783515910276473,
+        "accuracy": 0.952,
+        "threshold": 0.6187297109896179,
+        "n": 250,
+        "confusion": [
+         [
+          140,
+          2
+         ],
+         [
+          10,
+          98
+         ]
+        ],
+        "derived_accuracy": 0.952
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 2,
+       "role": "features",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "spectral",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 1,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.7120500782472613,
+        "f1_synthetic": 0.7111111111111111,
+        "roc_auc": 0.7775821596244131,
+        "accuracy": 0.688,
+        "threshold": 0.4625787287950516,
+        "n": 250,
+        "confusion": [
+         [
+          76,
+          66
+         ],
+         [
+          12,
+          96
+         ]
+        ],
+        "derived_accuracy": 0.688
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 2,
+       "role": "classifier",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "all",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 0.1,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "accepted",
+       "reason": "validation_balanced_accuracy_improved",
+       "metrics": {
+        "balanced_accuracy": 0.9568335941575378,
+        "f1_synthetic": 0.9497716894977168,
+        "roc_auc": 0.9897626499739176,
+        "accuracy": 0.956,
+        "threshold": 0.39278538241090233,
+        "n": 250,
+        "confusion": [
+         [
+          135,
+          7
+         ],
+         [
+          4,
+          104
+         ]
+        ],
+        "derived_accuracy": 0.956
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 2,
+       "role": "robustness",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 0.05,
+         "class_weight": "balanced"
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9510954616588418,
+        "f1_synthetic": 0.9444444444444444,
+        "roc_auc": 0.9812206572769954,
+        "accuracy": 0.952,
+        "threshold": 0.5626647508905436,
+        "n": 250,
+        "confusion": [
+         [
+          136,
+          6
+         ],
+         [
+          6,
+          102
+         ]
+        ],
+        "derived_accuracy": 0.952
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 3,
+       "role": "features",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 1,
+         "class_weight": null
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9220135628586332,
+        "f1_synthetic": 0.9116279069767442,
+        "roc_auc": 0.9730699008868023,
+        "accuracy": 0.924,
+        "threshold": 0.5476206233943692,
+        "n": 250,
+        "confusion": [
+         [
+          133,
+          9
+         ],
+         [
+          10,
+          98
+         ]
+        ],
+        "derived_accuracy": 0.924
+       },
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 3,
+       "role": "classifier",
+       "hypothesis": null,
+       "config": null,
+       "status": "failed",
+       "decision": "rejected",
+       "reason": "Luminal returned empty or oversized chat content; no automatic retry was made.",
+       "metrics": null,
+       "folds": null,
+       "objective": null
+      },
+      {
+       "round": 3,
+       "role": "robustness",
+       "hypothesis": null,
+       "config": {
+        "feature_set": "no_energy",
+        "classifier": "logistic_regression",
+        "parameters": {
+         "C": 0.01,
+         "class_weight": "balanced"
+        }
+       },
+       "status": "ok",
+       "decision": "rejected",
+       "reason": "no_validation_balanced_accuracy_improvement",
+       "metrics": {
+        "balanced_accuracy": 0.9451617110067814,
+        "f1_synthetic": 0.9363636363636364,
+        "roc_auc": 0.9797209181011999,
+        "accuracy": 0.944,
+        "threshold": 0.5733449992159723,
+        "n": 250,
+        "confusion": [
+         [
+          133,
+          9
+         ],
+         [
+          5,
+          103
+         ]
+        ],
+        "derived_accuracy": 0.944
+       },
+       "folds": null,
+       "objective": null
+      }
+     ],
+     "failures": 1,
+     "source": "runs/experiments.jsonl"
+    }
+   ],
+   "missing": [
+    "runs/inthewild-luminal-20261011-v1/experiments.jsonl",
+    "runs/inthewild-research-preparation-20261011-v2/research-history.jsonl"
+   ],
+   "skipped_lines": 0,
+   "sources": [
+    {
+     "path": "runs/experiments.jsonl",
+     "sha256": "51661488b8ea72c5f13c41041309497f9b3b1c9ce7e11ee3fc8942079fe1da90"
+    }
+   ]
+  }
+ }
+}
