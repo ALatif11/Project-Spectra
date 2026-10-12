@@ -138,3 +138,25 @@ def test_factors_from_real_checkpoint_if_present(monkeypatch):
     monkeypatch.delenv("ECHOPROOF_MODEL_PATH", raising=False)
     out = explain.factors(_wav(2.0), "tone.wav")
     assert out and len(out) == 3 and out[0]["strength"] == 1.0 and {o["toward"] for o in out} <= {"ai", "human"}
+
+
+def test_m4a_converts_locally_and_mp3_needs_no_conversion():
+    """Generated tone (mechanics only). M4A needs the optional 'av' package."""
+    import pytest
+    from ui import convert
+    from src.audio import decode_audio
+    assert convert.needs_conversion("Voice Memo.M4A") and not convert.needs_conversion("clip.mp3")
+    av = pytest.importorskip("av")
+    out = io.BytesIO()
+    with av.open(out, "w", format="mp4") as c:
+        s = c.add_stream("aac", rate=44100)
+        t = np.arange(44100 * 2) / 44100
+        frame = av.AudioFrame.from_ndarray((0.3 * np.sin(2 * np.pi * 440 * t)).astype(np.float32)[None, :],
+                                           format="flt", layout="mono")
+        frame.sample_rate = 44100
+        for packet in [*s.encode(frame), *s.encode(None)]:
+            c.mux(packet)
+    rec = decode_audio(convert.to_wav(out.getvalue()), "x.wav")
+    assert 1.9 < rec.duration_s < 2.2
+    with pytest.raises(convert.ConversionError):
+        convert.to_wav(b"not audio")
