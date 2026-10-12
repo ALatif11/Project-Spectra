@@ -36,14 +36,23 @@ def waveform_fig(rec: AudioRecording, bins: int = 1600) -> go.Figure:
     return fig
 
 
+def stitched_mel(rec: AudioRecording) -> tuple[np.ndarray, np.ndarray]:
+    """(log-Mel, frame times) across the 4 s windows. Each window's frames are timed from that window's own
+    start, the boundary frame shared with the next window is dropped, and zero padding is excluded."""
+    windows = split_windows(rec.samples)
+    parts, times = [], []
+    for i, w in enumerate(windows):
+        mel = log_mel_spectrogram(w.samples)
+        t = w.start_s + np.arange(mel.shape[1]) * HOP_LENGTH / SAMPLE_RATE
+        keep = t <= w.end_s + 1e-9 if i == len(windows) - 1 else t < w.end_s - 1e-9
+        parts.append(mel[:, keep])
+        times.append(t[keep])
+    return np.hstack(parts), np.concatenate(times)
+
+
 def spectrogram_fig(rec: AudioRecording) -> go.Figure:
     """Log-Mel (dB, fixed unit-power reference) stitched across the 4 s windows, padding removed."""
-    parts = []
-    for w in split_windows(rec.samples):
-        mel = log_mel_spectrogram(w.samples)
-        parts.append(mel[:, : w.valid_samples // HOP_LENGTH + 1])
-    mel = np.hstack(parts)
-    t = np.arange(mel.shape[1]) * HOP_LENGTH / SAMPLE_RATE
+    mel, t = stitched_mel(rec)
     hz = librosa.mel_frequencies(n_mels=N_MELS + 2, fmin=0, fmax=SAMPLE_RATE / 2)[1:-1]
     fig = go.Figure(go.Heatmap(
         z=mel, x=t, y=hz, zmin=-80, zmax=float(max(mel.max(), -70)),

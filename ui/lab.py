@@ -207,7 +207,7 @@ def render_lab(exp: ex.Experiments) -> None:
             cfg |= {"status": st.column_config.TextColumn(help="ok means trained and measured; failed or rejected means it was not."),
                     "decision": st.column_config.TextColumn(help="accepted: became the new best. rejected: did not beat it."),
                     "seed": st.column_config.NumberColumn(help="Fixed random seed, so the result can be reproduced exactly.")}
-            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True, column_config=cfg)
+            st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True, column_config=cfg)
         else:
             st.markdown('<p class="note">No experiment events in this run.</p>', unsafe_allow_html=True)
 
@@ -249,7 +249,7 @@ def render_evolution(exp: ex.Experiments) -> None:
                             format_func=lambda m: METRIC_NAMES[m])
             st.markdown(f'<p class="note">{html.escape(METRIC_TIPS[name])}</p>', unsafe_allow_html=True)
             pts = ex.trajectory(r.experiments, name)
-            st.plotly_chart(evolution_fig(pts, name, ex.metric(r.baseline, name)), use_container_width=True,
+            st.plotly_chart(evolution_fig(pts, name, ex.metric(r.baseline, name)), width="stretch",
                             config={"displayModeBar": False})
             best = next(p for p in pts if p.get("best"))
             st.markdown(f'<p class="note">Star: highest measured value, {best["value"]:.3f} ({_esc(best["label"])}). '
