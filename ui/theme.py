@@ -145,8 +145,7 @@ header[data-testid="stHeader"], #MainMenu, footer { display:none; }
 [data-testid="stExpander"] details { border-radius:12px; border-color: var(--border); background: var(--surface); }
 audio { width:100%; }
 
-/* Model page (lab) */
-.intro { max-width:44rem; color: var(--muted); line-height:1.6; margin:0 0 1.2rem; }
+/* Model page */
 .agrid { display:grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap:.7rem; }
 .acard { padding:1rem; border-radius:10px; background: var(--surface2); min-width:0; }
 .acard h4 { font-size:.92rem; font-weight:600; margin:0 0 .55rem; color: var(--fg); }
@@ -157,20 +156,11 @@ audio { width:100%; }
 .stat b { display:block; font: 500 1.1rem var(--mono); font-variant-numeric: tabular-nums; }
 .stat span { font-size:.75rem; color: var(--muted); }
 .big-stats .stat b { font-size:1.35rem; }
-.verdict-sm { font-size:1rem; line-height:1.6; margin:0 0 1rem; max-width:46rem; color: var(--fg); }
-.exam { display:grid; gap:.9rem; }
-.exam-row { display:grid; grid-template-columns: minmax(9rem, 13rem) 1fr; gap:1rem; align-items:center; }
-.exam-row .lbl b { display:block; font-weight:600; font-size:.9rem; } .exam-row .lbl span { font-size:.78rem; color: var(--muted); }
 .bars { display:grid; gap:.35rem; }
 .bar { display:grid; grid-template-columns: 5.5rem 1fr 6.2rem; gap:.6rem; align-items:center; font-size:.8rem; }
-.exam .bar i { display:block; height:8px; border-radius:999px; background: var(--surface2); overflow:hidden; }
-.exam .bar i b { display:block; height:100%; border-radius:999px; transform-origin:left; animation: fill .7s var(--ease) both; }
-.bar.base i b { background:#5b5e68; } .bar.opt i b { background: var(--brand); }
 .bar em { font: normal 500 .8rem var(--mono); text-align:right; font-variant-numeric: tabular-nums; }
-.delta { font: 500 .78rem var(--mono); } .delta.up { color: var(--human); } .delta.down { color: var(--ai); }
 .empty { text-align:center; padding:2.4rem 1rem; } .empty h3 { font-size:1.1rem; font-weight:600; margin:0 0 .4rem; }
 .empty p { color: var(--muted); max-width:30rem; margin:0 auto; line-height:1.6; }
-@media (max-width: 760px) { .exam-row { grid-template-columns: 1fr; } }
 
 /* Tables and flow diagrams */
 .tbl { overflow-x:auto; } table.cmp { width:100%; min-width:28rem; border-collapse:collapse; font-size:.86rem; }
