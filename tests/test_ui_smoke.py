@@ -9,7 +9,7 @@ from streamlit.testing.v1 import AppTest
 def test_app_renders_without_upload():
     at = AppTest.from_file(str(Path(__file__).parents[1] / "app.py"), default_timeout=30).run()
     assert not at.exception
-    assert [t.label for t in at.tabs] == ["Check a clip", "How it works", "Model", "Agent experiments", "Results over time"]
+    assert [t.label for t in at.tabs] == ["Check a clip", "Model", "How EchoProof learned", "Agent Lab", "How it works"]
 
 
 def test_detector_unavailable_without_backend_inference(monkeypatch, tmp_path):

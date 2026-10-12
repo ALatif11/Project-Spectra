@@ -35,18 +35,20 @@ def to_wav(data: bytes) -> bytes:
             stream = next((s for s in container.streams if s.type == "audio"), None)
             if stream is None:
                 raise ConversionError("This file has no audio track.")
-            chunks, rate = [], None
+            chunks, rate, total = [], None, 0
             for frame in container.decode(stream):
-                arr = frame.to_ndarray().astype(np.float32)
+                raw = frame.to_ndarray()
+                arr = raw.astype(np.float32)
                 if frame.format.is_planar:  # (channels, samples)
                     arr = arr.T
                 else:  # packed: (1, samples*channels)
                     arr = arr.reshape(-1, len(frame.layout.channels))
-                if np.issubdtype(frame.to_ndarray().dtype, np.integer):
-                    arr = arr / float(np.iinfo(frame.to_ndarray().dtype).max)
+                if np.issubdtype(raw.dtype, np.integer):
+                    arr = arr / float(np.iinfo(raw.dtype).max)
                 rate = frame.sample_rate
                 chunks.append(arr)
-                if sum(len(c) for c in chunks) > (MAX_SECONDS + 1) * rate:
+                total += len(arr)
+                if total > (MAX_SECONDS + 1) * rate:
                     raise ConversionError("The clip is longer than 120 seconds.")
     except ConversionError:
         raise
