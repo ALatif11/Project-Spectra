@@ -1,0 +1,6 @@
+# Everything needed to run the app: python -m pip install -r requirements.txt
+-r requirements-backend.txt
+streamlit==1.65.0
+plotly==7.1.0
+# M4A/AAC uploads (converted locally to WAV); the app still runs without it.
+av==19.0.1
