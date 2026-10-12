@@ -6,7 +6,7 @@ import html
 import streamlit as st
 
 from src.audio import AudioDecodeError, decode_audio
-from ui import explain, pages, reporting, theme, viz
+from ui import convert, explain, pages, reporting, theme, viz
 from ui.detector import _model_path, checkpoint_label, headline, model_html, result_html, run_detector
 
 st.set_page_config(page_title="EchoProof · Check a voice clip", page_icon="🎧", layout="wide")
@@ -68,19 +68,36 @@ with tab_check:
     left, right = st.columns([5, 6], gap="large")
     with left:
         with st.container(key="card_upload"):
-            theme.card_title("Your clip", "WAV, FLAC or OGG, up to 25 MiB and 120 seconds. Analyzed in memory on "
+            theme.card_title("Your clip", "WAV, MP3, M4A, FLAC or OGG, up to 25 MiB and 120 seconds. Analyzed in memory on "
                              "this computer and never uploaded.")
-            up = st.file_uploader("Upload audio", type=["wav", "flac", "ogg"], label_visibility="collapsed")
+            source = st.radio("Clip source", ["Upload a file", "Record now"], horizontal=True,
+                              label_visibility="collapsed", key="clip_source")
+            if source == "Upload a file":
+                up = st.file_uploader("Upload audio", type=["wav", "flac", "ogg", "mp3", "m4a"], label_visibility="collapsed")
+            else:
+                # Recorded in the browser and sent only to this app on this computer (16 kHz, like the detector).
+                up = st.audio_input("Record a voice clip", sample_rate=16000, label_visibility="collapsed",
+                                    key="clip_recording")
+                st.markdown('<p class="note">Click the microphone, speak or play the voice for five seconds or '
+                            "more, then stop. Your browser may ask for microphone permission. The recording stays "
+                            "on this computer.</p>", unsafe_allow_html=True)
 
     data = up.getvalue() if up else None
+    name = (up.name or "recording.wav") if up else None
     err = rec = wave = spec = res = None
     tone = "off"
+    conv_err = None
+    if data and convert.needs_conversion(name):  # M4A/AAC → WAV locally; the backend decodes WAV
+        try:
+            data = convert.to_wav(data)
+        except convert.ConversionError as exc:
+            conv_err = str(exc)
     if data:
         digest = hashlib.sha256(data).hexdigest()
-        err, rec, wave, spec = analyze(digest, data, up.name)
+        err, rec, wave, spec = (conv_err, None, None, None) if conv_err else analyze(digest, data, name)
         if err is None:
             with st.spinner("Checking…"):
-                res = run_detector(data, up.name)  # runs every script pass, so a fresh upload is never stale
+                res = run_detector(data, name)  # runs every script pass, so a fresh upload is never stale
         else:
             res = {"status": "invalid", "label": "inconclusive", "synthetic_score": None, "threshold": None,
                    "segments": [], "model_version": None, "message": err}
@@ -89,7 +106,7 @@ with tab_check:
     with left:
         if data and not err:
             with st.container(key="card_clip"):
-                theme.card_title(f"{up.name} · {rec.duration_s:.1f} s")
+                theme.card_title(f"{name} · {rec.duration_s:.1f} s")
                 st.audio(data)
                 if rec.is_silent:
                     st.markdown('<span class="chip warn">This recording is almost silent</span>', unsafe_allow_html=True)
@@ -106,11 +123,11 @@ with tab_check:
                             unsafe_allow_html=True)
             else:
                 ok = res["status"] == "ok"
-                why = why_for(digest, checkpoint_label(), data, up.name) if ok else None
+                why = why_for(digest, checkpoint_label(), data, name) if ok else None
                 warnings = explain.quality_checks(rec.samples, rec.duration_s) if rec is not None else []
                 st.markdown(result_html(res, why, warnings), unsafe_allow_html=True)
                 if ok:
-                    report = explain.report_markdown(up.name, headline(res)[1], res, why, warnings, checkpoint_label())
+                    report = explain.report_markdown(name, headline(res)[1], res, why, warnings, checkpoint_label())
                     st.download_button("Save report", report, file_name=f"echoproof-{digest[:8]}.md",
                                        mime="text/markdown", key="dl_report")
             st.markdown(f'<div style="margin-top:.9rem">{model_html()}</div>', unsafe_allow_html=True)
