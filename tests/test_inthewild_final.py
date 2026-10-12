@@ -13,7 +13,7 @@ from src import inthewild_final as final
 from src.audio import decode_audio
 from src.inference import predict_audio
 from src.model import file_digest, load_model
-from scripts.launch_final_demo import selected_path
+from scripts.launch_final_demo import local_path, selected_path
 from test_dataset import technical_dataset  # noqa: F401
 from test_model import fitted  # noqa: F401
 
@@ -189,3 +189,15 @@ def test_app_adapter_and_spectrogram_with_selected_model(frozen_local, monkeypat
     assert spectrogram_fig(decode_audio(wav())).data
     app = AppTest.from_file(str(final.ROOT / "app.py"), default_timeout=30).run()
     assert not app.exception
+
+
+def test_freeze_paths_from_another_machine_rebase_and_stay_hash_checked(tmp_path):
+    other = "/Users/someone/elsewhere/Project-Spectra"
+    freeze = dict(model_path=f"{other}/models/inthewild-final-frozen.joblib",
+                  rollback_path=f"{other}/models/baseline-rollback-20261011.joblib",
+                  model_sha256="not-the-real-digest", baseline_sha256="not-the-real-digest")
+    assert local_path(freeze["rollback_path"], freeze) == final.ROOT / "models/baseline-rollback-20261011.joblib"
+    (tmp_path / "freeze.json").write_text(json.dumps(freeze))
+    if (final.ROOT / "models/inthewild-final-frozen.joblib").exists():
+        with pytest.raises(ValueError, match="changed"):
+            selected_path(freeze_path=tmp_path / "freeze.json")

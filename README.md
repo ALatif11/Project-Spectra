@@ -69,7 +69,7 @@ python -m scripts.launch_final_demo
 python -m scripts.launch_final_demo --rollback   # back to the preserved baseline
 ```
 
-It reads the freeze record in `runs/inthewild-final-20261011/freeze.json`. That record currently stores absolute paths from the machine that produced it, so on other computers the script stops rather than guess. Use `ECHOPROOF_MODEL_PATH=models/inthewild-final-frozen.joblib` instead.
+It reads the freeze record in `runs/inthewild-final-20261011/freeze.json` and refuses to start if the checkpoint's SHA-256 doesn't match.
 
 ## How it works
 
@@ -142,7 +142,7 @@ Audio is processed in memory on the local machine and never uploaded (the page l
 python -m pytest -q
 ```
 
-Known failures on Windows, all in backend tests: an agent test exceeds the Windows environment-variable size limit, In-the-Wild feature extraction imports the Unix-only `resource` module, and the In-the-Wild final tests read the absolute paths in `freeze.json`.
+Known failures on Windows, all in backend tests: an agent test exceeds the Windows environment-variable size limit, and In-the-Wild feature extraction imports the Unix-only `resource` module.
 
 ## Data and credits
 
