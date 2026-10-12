@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "echoproof",
-      "runtimeExecutable": "C:/Users/adam1/AppData/Local/Temp/claude/C--Users-adam1-Downloads-Project-Spectra/447877a6-c0be-4534-a7e8-bf261994c658/scratchpad/venv/Scripts/python.exe",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
       "runtimeArgs": ["-m", "streamlit", "run", "app.py", "--server.headless", "true", "--server.port", "8770"],
       "port": 8770
     }

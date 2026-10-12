@@ -9,3 +9,7 @@ font = "sans serif"
 
 [browser]
 gatherUsageStats = false
+
+[server]
+# Matches src/audio.py MAX_UPLOAD_BYTES (25 MiB) so the uploader shows the real limit.
+maxUploadSize = 25
